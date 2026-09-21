@@ -1,0 +1,49 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import type { CSSProperties, ReactNode } from "react";
+import { Attribution } from "@/components/Attribution";
+import { SiteNav } from "@/components/SiteNav";
+import { ToastHost } from "@/components/ToastHost";
+import { modeLabel } from "@/lib/env";
+import "remixicon/fonts/remixicon.css";
+import "./globals.css";
+
+const sans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const mono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "Hold Check",
+  description: "Is capital still arriving, or are you the bid?",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: ReactNode;
+}>) {
+  return (
+    <html lang="en" className={`${sans.variable} ${mono.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">
+        <SiteNav />
+        <div className="flex flex-1 flex-col">{children}</div>
+        <footer className="px-6 py-8 sm:px-8">
+          <div
+            className="border-ticks mb-6 border-t border-[var(--line)]"
+            style={{ "--tick": "var(--p-green)" } as CSSProperties}
+          />
+          <Attribution mode={modeLabel()} />
+        </footer>
+        <ToastHost />
+      </body>
+    </html>
+  );
+}
