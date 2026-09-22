@@ -28,7 +28,7 @@ const emptyTraders: TraderSides = { buyers: [], sellers: [] };
 /** History strips show the last 30 days. */
 export const HISTORY_DAYS = 30;
 
-const SNAPSHOTS: TokenSnapshot[] = tokens.map((row) => ({
+const SNAPSHOTS: TokenSnapshot[] = (tokens as TokenSnapshot[]).map((row) => ({
   ...row,
   address: normalizeAddress(row.address),
   symbol: sanitizeSymbol(row.symbol),
