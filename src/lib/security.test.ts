@@ -9,8 +9,8 @@ import { watchOkSchema } from "./validate";
 const WETH = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 
 describe("clampDataMode", () => {
-  it("forces snapshot on Vercel even when live is set", () => {
-    expect(clampDataMode("live", true)).toBe("snapshot");
+  it("keeps the mode that was set, including live on Vercel", () => {
+    expect(clampDataMode("live", true)).toBe("live");
     expect(clampDataMode("sim", true)).toBe("sim");
     expect(clampDataMode("snapshot", true)).toBe("snapshot");
     expect(clampDataMode("live", false)).toBe("live");

@@ -7,12 +7,14 @@ function blank(value: string | undefined): string | undefined {
   return value && value.length > 0 ? value : undefined;
 }
 
-/** Public Vercel traffic never calls Nansen, even if DATA_MODE=live is set. */
+/**
+ * Live is allowed on Vercel when DATA_MODE=live. The daily cap and
+ * per-IP limiter still apply. Sim and snapshot pass through unchanged.
+ */
 export function clampDataMode(
   mode: "snapshot" | "sim" | "live",
-  onVercel: boolean,
+  _onVercel: boolean,
 ): "snapshot" | "sim" | "live" {
-  if (onVercel && mode === "live") return "snapshot";
   return mode;
 }
 
