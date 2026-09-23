@@ -17,6 +17,9 @@ const csp = [
 ].join("; ");
 
 const securityHeaders = [
+  ...(isDev
+    ? []
+    : [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }]),
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "no-referrer" },
   { key: "X-Frame-Options", value: "DENY" },
@@ -28,8 +31,11 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // The badge sits over the footer attribution and ends up in recordings.
   devIndicators: false,
+  // Logos are 22px and load straight from img.logo.dev (allowed by CSP).
+  // No optimizer means /_next/image cannot be used to proxy remote images
+  // on our quota.
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "img.logo.dev" }],
+    unoptimized: true,
   },
   async headers() {
     return [

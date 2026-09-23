@@ -75,6 +75,9 @@ export type Env = z.infer<typeof schema>;
 
 export const env = loadEnv();
 
+/** Vercel sets VERCEL=1; only then are its forwarding headers trustworthy. */
+export const ON_VERCEL = Boolean(process.env.VERCEL);
+
 export function isLiveMode(current: Env = env): boolean {
   return current.DATA_MODE === "live" && Boolean(current.NANSEN_API_KEY);
 }

@@ -57,7 +57,9 @@ The key never reaches the browser, and a public live deploy cannot be used to dr
 - New (uncached) tokens are capped per client per hour and per server per hour. Featured tokens skip the per-client cap. Past the cap you get the saved read or a busy page.
 - A daily credit cap stops outbound calls.
 - The catalog and board endpoints never call Nansen live.
-- Origin check, per-IP rate limit, CSP and frame blocking, and Zod on every input.
+- Unknown tokens stop after one call. Failed checks are cached briefly, so retries are free.
+- Origin check, per-IP rate limit (the Vercel IP header is trusted only on Vercel), CSP, HSTS, frame blocking, and Zod on every input.
+- No image proxy: logos load straight from Logo.dev, so `/_next/image` cannot spend your quota.
 
 Tune with `CACHE_TTL_SECONDS`, `DAILY_CALL_CAP`, `COLD_CHECKS_PER_CLIENT_HOUR`, `COLD_CHECKS_PER_HOUR`, and `RATE_LIMIT_PER_MIN`. The guards are in-memory per instance. For a hard cap across instances, add a Vercel Firewall rate-limit rule on `/t/*` and `/api/*`.
 

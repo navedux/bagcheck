@@ -36,7 +36,17 @@ describe("clientKey", () => {
         "x-vercel-forwarded-for": "9.9.9.9",
       },
     });
-    expect(clientKey(request)).toBe("9.9.9.9");
+    expect(clientKey(request, true)).toBe("9.9.9.9");
+  });
+
+  it("ignores a client-sent Vercel IP header when not on Vercel", () => {
+    const request = new Request("http://localhost/api/check", {
+      headers: {
+        "x-forwarded-for": "10.0.0.1",
+        "x-vercel-forwarded-for": "6.6.6.6",
+      },
+    });
+    expect(clientKey(request, false)).toBe("10.0.0.1");
   });
 
   it("uses the last X-Forwarded-For hop when no platform IP is set", () => {

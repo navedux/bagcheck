@@ -1,4 +1,4 @@
-import { env } from "./env";
+import { ON_VERCEL, env } from "./env";
 
 type Bucket = { count: number; resetAt: number };
 
@@ -27,13 +27,16 @@ export function allowRequest(key: string, now = Date.now()): boolean {
 }
 
 /**
- * Client identity for the in-memory limiter. The leftmost X-Forwarded-For
- * hop is attacker-controlled; prefer the IP Vercel sets, then the rightmost
- * forwarded hop (the one the trusted proxy appended).
+ * Client identity for the in-memory limiter and the cold-check gate. The
+ * leftmost X-Forwarded-For hop is attacker-controlled. On Vercel, trust the
+ * IP Vercel sets. Anywhere else a client can send `x-vercel-forwarded-for`
+ * itself and rotate identities, so it is ignored there.
  */
-export function clientKeyFromHeaders(headers: Headers): string {
-  const vercel = headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
-  if (vercel) return vercel;
+export function clientKeyFromHeaders(headers: Headers, onVercel = ON_VERCEL): string {
+  if (onVercel) {
+    const vercel = headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+    if (vercel) return vercel;
+  }
   const realIp = headers.get("x-real-ip")?.trim();
   if (realIp) return realIp;
   const forwarded = headers.get("x-forwarded-for");
@@ -48,6 +51,6 @@ export function clientKeyFromHeaders(headers: Headers): string {
   return "local";
 }
 
-export function clientKey(request: Request): string {
-  return clientKeyFromHeaders(request.headers);
+export function clientKey(request: Request, onVercel = ON_VERCEL): string {
+  return clientKeyFromHeaders(request.headers, onVercel);
 }
