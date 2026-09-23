@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { HAS_SIM_FIXTURE } from "../test/fixture";
 import { FEATURED, TRY_TOKENS } from "../../data/featured";
 import { getSnapshot } from "./snapshot";
 import type {
@@ -139,7 +140,7 @@ describe("scoreVerdict", () => {
     expect(result.verdict).toBe("quiet");
   });
 
-  it("scores the thin fixture as too-thin", () => {
+  it.skipIf(!HAS_SIM_FIXTURE)("scores the thin fixture as too-thin", () => {
     const snapshot = getSnapshot(
       "ethereum",
       "0x1111111111111111111111111111111111111111",
@@ -172,7 +173,7 @@ describe("scoreVerdict", () => {
     }
   });
 
-  it("gives the featured snapshots their expected chips", () => {
+  it.skipIf(!HAS_SIM_FIXTURE)("gives the featured snapshots their expected chips", () => {
     expect(FEATURED).toHaveLength(10);
     const verdicts = FEATURED.map((item) => {
       const snapshot = getSnapshot(item.chain, item.address);
@@ -314,5 +315,35 @@ describe("flowBridge", () => {
 
   it("returns no legs when every cohort is empty", () => {
     expect(flowBridge(zeroFlows, 1_000_000).legs).toEqual([]);
+  });
+});
+
+describe("live recalibration (Sep 23)", () => {
+  it("calls exchange deposits distribution even when fresh wallets buy", () => {
+    // LINK live Sep 23: exchanges +53% of volume, fresh +24%.
+    const { verdict } = scoreVerdict(liquid, {
+      ...zeroFlows,
+      exchangeNetFlowUsd: 530_000,
+      freshWalletsNetFlowUsd: 240_000,
+    });
+    expect(verdict).toBe("distribution");
+  });
+
+  it("treats fresh-wallet flow above a day of volume as transfer noise", () => {
+    // WETH live Sep 23: fresh flow 336% of volume, nothing else moving.
+    const { verdict, breakdown } = scoreVerdict(liquid, {
+      ...zeroFlows,
+      freshWalletsNetFlowUsd: 3_360_000,
+    });
+    expect(breakdown.retail).toBe(0);
+    expect(verdict).toBe("quiet");
+  });
+
+  it("still calls a plausible fresh-wallet bid a retail pump", () => {
+    const { verdict } = scoreVerdict(liquid, {
+      ...zeroFlows,
+      freshWalletsNetFlowUsd: 160_000,
+    });
+    expect(verdict).toBe("retail-pump");
   });
 });

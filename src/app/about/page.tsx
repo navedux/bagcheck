@@ -1,99 +1,108 @@
-import type { ReactNode } from "react";
-import { SIGNAL_LABEL } from "@/lib/copy";
+import type { CSSProperties, ReactNode } from "react";
+import { VERDICT_TONE } from "@/lib/brand";
+import { SIGNAL_LABEL, VERDICT_COPY, VERDICT_LABEL } from "@/lib/copy";
+import type { Verdict } from "@/lib/types";
 import {
   EARLY_WINDOW_DAYS,
-  EXCHANGE_SIGN,
   LIQUIDITY_FLOOR_USD,
   RECENT_SELL_WINDOW_DAYS,
   T,
   T_QUIET,
-  UNTRACKED_LIQUIDITY_VOLUME_FLOOR_USD,
   VOLUME_FLOOR_USD,
+  signalFor,
 } from "@/lib/verdict";
 import { LABEL_COVERAGE_START, MAX_HOLD_DAYS } from "@/lib/window";
 
+const STATES: Verdict[] = ["still-bid", "distribution", "retail-pump", "split", "quiet", "too-thin"];
+
+const pct = (value: number) => `${Math.round(value * 100)}%`;
+const usd = (value: number) => `$${value.toLocaleString("en-US")}`;
+
 export default function AboutPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-6 pt-10 pb-6">
-      <h1 className="display max-w-[14ch]">One question. Normalized flows.</h1>
+    <main className="mx-auto w-full max-w-4xl flex-1 px-6 pt-10 pb-6">
+      <p className="col">About</p>
+      <h1 className="display mt-4 max-w-[18ch]">
+        Is capital still arriving, or are you the exit?
+      </h1>
+      <p className="mt-5 max-w-[56ch] text-[15px] leading-[1.6] text-[var(--muted)]">
+        Hold Check reads one token at a time. It asks Nansen who moved the token
+        in the last 24 hours, weighs each group against the token&apos;s own
+        volume, and answers with one word.
+      </p>
+
       <div className="mt-12">
-        <AboutRow title="Method">
-          Hold Check scores Nansen cohort net flows against 24h volume (market cap
-          if volume is missing). Liquidity under ${LIQUIDITY_FLOOR_USD.toLocaleString()}{" "}
-          or volume under ${VOLUME_FLOOR_USD.toLocaleString()} is{" "}
-          <em>too thin</em> and is not scored. When Nansen tracks no liquidity
-          at all (wrapped natives like WSOL and WETH report zero), the token
-          floors on volume alone at a stricter bar ($
-          {UNTRACKED_LIQUIDITY_VOLUME_FLOOR_USD.toLocaleString()}).
+        <AboutRow title="Data">
+          Every check reads the Nansen API: flow intelligence (24h and last hour),
+          token information, and who bought and sold. A buy date adds the
+          historical flow summary. Results are cached, so a repeat check costs
+          no new calls.
         </AboutRow>
-        <AboutRow title="Thresholds">
-          Frozen thresholds: T = {T} (6% of a day&apos;s volume), T_quiet = {T_QUIET}.
-          Featured snapshots produce at least three chips at these values.
+
+        <AboutRow title="Cohorts">
+          Smart traders, whales, fresh wallets, public figures, and exchanges.
+          Each cohort&apos;s net flow is divided by 24h volume, so a major and a
+          memecoin are judged by relative pressure, not raw dollars. A move
+          counts at {pct(T)} of a day&apos;s volume; under {pct(T_QUIET)} is quiet.
+          Fresh-wallet flow bigger than a whole day of volume is treated as
+          transfers, not buying. Exchange deposits are checked before retail.
         </AboutRow>
-        <AboutRow title="Signal">
-          The loud line is {SIGNAL_LABEL.buy}, {SIGNAL_LABEL.hold},{" "}
-          {SIGNAL_LABEL.sell}, {SIGNAL_LABEL["dont-buy"]}, {SIGNAL_LABEL.wait}, or{" "}
-          {SIGNAL_LABEL["no-read"]}.
-          It depends on whether a buy date is set: looking and holding
-          never share a label for still-bid or distribution. The small
-          chip names the flow state. The app never writes buy now or
-          sell now. Descriptive onchain data, not financial advice.
+
+        <AboutRow title="States">
+          <span className="block">
+            Six flow states. The chip names the state; the loud word depends on
+            whether you already hold the token.
+          </span>
+          <span className="about-states mt-5" role="table" aria-label="Flow states and signals">
+            <span className="about-state is-head" role="row">
+              <span className="col" role="columnheader">State</span>
+              <span className="col" role="columnheader">Looking</span>
+              <span className="col" role="columnheader">Holding</span>
+            </span>
+            {STATES.map((verdict) => (
+              <span key={verdict} className="about-state" role="row">
+                <span role="cell">
+                  <span className="flex items-center gap-2 text-[var(--ink)]">
+                    <span
+                      aria-hidden="true"
+                      className="sig-block"
+                      style={{ "--sig": VERDICT_TONE[verdict] } as CSSProperties}
+                    />
+                    {VERDICT_LABEL[verdict]}
+                  </span>
+                  <span className="caption mt-1 block">{VERDICT_COPY[verdict]}</span>
+                </span>
+                <span role="cell">{SIGNAL_LABEL[signalFor(verdict, false)]}</span>
+                <span role="cell">{SIGNAL_LABEL[signalFor(verdict, true)]}</span>
+              </span>
+            ))}
+          </span>
         </AboutRow>
-        <AboutRow title="Stability">
-          Under the 30-day strip, one caption says how long the current read
-          has held and how many times it flipped in the window. A chip that
-          flips every few days reads different from one that has held a month.
+
+        <AboutRow title="Buy date">
+          Add the day you bought and the same flows are re-read over your holding
+          window (up to {MAX_HOLD_DAYS} days), next to the 24h read. The date is
+          stored on your device and in the link you copy, nowhere else.
         </AboutRow>
-        <AboutRow title="Insider exit">
-          Under the traders panel: how many of the top sellers from the last{" "}
-          {RECENT_SELL_WINDOW_DAYS} days also appear among the biggest buyers
-          of the token&apos;s first {EARLY_WINDOW_DAYS} days. Addresses only,
-          never labels. When early buyers are this week&apos;s sellers, the
-          people who were there first are leaving.
+
+        <AboutRow title="Early exit">
+          Under the traders panel: how many of the top sellers of the last{" "}
+          {RECENT_SELL_WINDOW_DAYS} days were among the biggest buyers in the
+          token&apos;s first {EARLY_WINDOW_DAYS} days. Addresses only, never labels.
         </AboutRow>
-        <AboutRow title="Today board">
-          Deferred for v1. The endpoint still exists: it ranks tokens by net
-          flow as a share of 24h volume so a major and a memecoin compare by
-          relative pressure. Live mode reads the Nansen screener (no
-          smart-money filters); sim mode generates daily movers on the same
-          math. It may return as a short trending row later.
+
+        <AboutRow title="Limits">
+          Solana, Ethereum, and Base. Tokens under {usd(LIQUIDITY_FLOOR_USD)}{" "}
+          liquidity or {usd(VOLUME_FLOOR_USD)} daily volume are too thin to read.
+          Who bought and sold covers DEX trades only. Whale, public figure, and
+          exchange labels in historical flows start on {LABEL_COVERAGE_START}.
+          This is descriptive onchain data, not financial advice.
         </AboutRow>
-        <AboutRow title="Data modes">
-          Three modes, one interface. <em>Sim</em> is a deterministic
-          simulator seeded by token address: ninety days of cohort flows that
-          advance daily, no key needed. <em>Snapshot</em> is that world frozen
-          at 2026-09-19 for the public deploy. <em>Live</em> calls Nansen when
-          a key is present. The footer always says which is running.
-        </AboutRow>
-        <AboutRow title="Exchange sign">
-          Exchange sign is {EXCHANGE_SIGN > 0 ? "positive" : "negative"}{" "}
-          <code className="font-mono text-[13px]">exchange_net_flow_usd</code> as
-          tokens moving onto exchanges. Spot-checked live on Sep 19, 2026:
-          up-days for PEPE, LINK and BRETT paired with exchange outflows,
-          flat-to-down days for TRUMP and AERO paired with large deposits.
-          Consistent with deposit-to-exchange = positive, with the expected
-          noise from DEX-led moves.
-        </AboutRow>
-        <AboutRow title="Coverage">
-          Who bought/sold covers DEX trades only. Tokens sold through a centralized
-          exchange do not appear there, and exchange flow means little for
-          tokens with no CEX listing. Whale, public figure, top PnL and exchange
-          labels in historical flows start on {LABEL_COVERAGE_START}. Entry dates
-          before that show only covered cohorts. The hold window is capped at{" "}
-          {MAX_HOLD_DAYS} days.
-        </AboutRow>
-        <AboutRow title="Featured">
-          Featured is the last-30-day volume set that fits v1 chains (USDC, WETH,
-          WSOL, WBTC, PEPE, LINK, BONK, JUP, AERO, BRETT). Each runs a scripted
-          regime schedule in the sim, so history shows real flips. THIN is the
-          floor fixture. Public deploy stays snapshot-only.
-        </AboutRow>
-        <AboutRow title="Floor fixture">
-          ethereum{" "}
-          <code className="font-mono text-[13px]">
-            0x1111111111111111111111111111111111111111
-          </code>{" "}
-          (THIN).
+
+        <AboutRow title="Modes">
+          The footer says which mode is running. Live calls Nansen. Snapshot
+          serves saved Nansen reads for the featured tokens. Sim is a local
+          simulator for running the app without a key.
         </AboutRow>
       </div>
     </main>
@@ -104,7 +113,7 @@ function AboutRow({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="grid grid-cols-1 gap-2 border-t border-[var(--line)] py-7 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-10">
       <h2 className="section pt-0.5">{title}</h2>
-      <p className="max-w-[52ch] text-[15px] leading-[1.6]">{children}</p>
+      <div className="max-w-[60ch] text-[15px] leading-[1.6]">{children}</div>
     </section>
   );
 }

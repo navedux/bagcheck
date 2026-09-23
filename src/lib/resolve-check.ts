@@ -1,7 +1,10 @@
 import "server-only";
 
 import { FEATURED } from "../../data/featured";
-import { dataMode } from "./env";
+import { MemoryCache } from "./cache";
+import { ColdGate } from "./cold-gate";
+import { dataMode, env } from "./env";
+import { getLiveSnapshot } from "./live-snapshot";
 import { nansen, type CallResult } from "./nansen";
 import { sim, simDaily, simHistory } from "./sim/client";
 import { sanitizeSymbol } from "./sanitize";
@@ -28,7 +31,13 @@ import {
   type Verdict,
   type VerdictDay,
 } from "./types";
-import { EMPTY_SNAPSHOT_LINE, LIVE_AUTH, LIVE_NOT_FOUND, LIVE_UNAVAILABLE } from "./copy";
+import {
+  EMPTY_SNAPSHOT_LINE,
+  LIVE_AUTH,
+  LIVE_BUSY,
+  LIVE_NOT_FOUND,
+  LIVE_UNAVAILABLE,
+} from "./copy";
 import { normalizeAddress } from "./validate";
 import {
   EARLY_WINDOW_DAYS,
@@ -103,7 +112,39 @@ export type ResolveDeps = {
    */
   history: (chain: Chain, address: string, now: Date) => VerdictDay[];
   now: () => number;
+  /** Caps cold live checks per client and per instance. Absent in tests. */
+  gate?: ColdGate;
+  /** How long a finished live check is reused before Nansen is asked again. */
+  resultTtlMs?: () => number;
+  /** How long the early-exit read may hold the page before it is skipped. */
+  earlyExitBudgetMs?: number;
 };
+
+export type ResolveOptions = {
+  /** Rate-limit identity of the caller, for the cold-check gate. */
+  client?: string;
+};
+
+const STALE_RESULT_TTL_MS = 60_000;
+const DEFAULT_EARLY_EXIT_BUDGET_MS = 2_500;
+
+const FEATURED_KEYS = new Set(
+  FEATURED.map((item) => `${item.chain}:${normalizeAddress(item.address)}`),
+);
+
+function isFeatured(chain: Chain, address: string): boolean {
+  return FEATURED_KEYS.has(`${chain}:${address}`);
+}
+
+/** Nansen's answer for an address it does not know: no symbol, no volume, no cap. */
+function isUnknownToken(info: { symbol: string | null; stats: TokenStats }): boolean {
+  const blankSymbol = !info.symbol || info.symbol.trim().length === 0;
+  return (
+    blankSymbol &&
+    (info.stats.volume24hUsd ?? 0) === 0 &&
+    (info.stats.marketCapUsd ?? 0) === 0
+  );
+}
 
 function liveError(code: string): ResolveError {
   if (code === "not_found") {
@@ -116,12 +157,77 @@ function liveError(code: string): ResolveError {
 }
 
 export function createResolver(deps: ResolveDeps) {
+  const results = new MemoryCache(2_000);
+  const inflight = new Map<string, Promise<ResolveResult>>();
+
+  /**
+   * Live checks are cached whole, so repeat clicks on one token cost nothing.
+   * A new token (or new entry date) is a cold check and must pass the gate;
+   * past the gate, the caller gets the snapshot if there is one.
+   */
   async function resolveCheck(
     chain: Chain,
     address: string,
     entryDate?: string,
+    options: ResolveOptions = {},
   ): Promise<ResolveResult> {
     const addr = normalizeAddress(address);
+    if (deps.mode() !== "live") return computeCheck(chain, addr, entryDate);
+
+    const key = `${chain}:${addr}:${entryDate ?? ""}`;
+    const now = deps.now();
+    const cached = results.get<ResolveResult>(key, now);
+    if (cached) return cached;
+    const pending = inflight.get(key);
+    if (pending) return pending;
+
+    const exempt = isFeatured(chain, addr) && !entryDate;
+    if (deps.gate && !deps.gate.admit(options.client ?? "anon", now, exempt)) {
+      const snap = deps.getSnapshot(chain, addr);
+      if (snap) {
+        return {
+          ok: true,
+          data: { ...checkedToken(snap, entryDate, new Date(now)), stale: true },
+        };
+      }
+      return { ok: false, error: { code: "busy", message: LIVE_BUSY } };
+    }
+
+    const request = computeCheck(chain, addr, entryDate).then((result) => {
+      if (result.ok) {
+        const ttl = result.data.stale
+          ? STALE_RESULT_TTL_MS
+          : (deps.resultTtlMs?.() ?? STALE_RESULT_TTL_MS);
+        results.set(key, result, ttl, deps.now());
+      } else {
+        // Failures are remembered too, so retrying a bad token is free.
+        const ttl = result.error.code === "not_found" ? 30 * 60_000 : 2 * 60_000;
+        results.set(key, result, ttl, deps.now());
+      }
+      return result;
+    });
+    inflight.set(key, request);
+    try {
+      return await request;
+    } finally {
+      inflight.delete(key);
+    }
+  }
+
+  /** A finished check without spending anything: cache, then snapshot. */
+  function peekCheck(chain: Chain, address: string): CheckedToken | null {
+    const addr = normalizeAddress(address);
+    const cached = results.get<ResolveResult>(`${chain}:${addr}:`, deps.now());
+    if (cached?.ok) return cached.data;
+    const snap = deps.getSnapshot(chain, addr);
+    return snap ? checkedToken(snap, undefined, new Date(deps.now())) : null;
+  }
+
+  async function computeCheck(
+    chain: Chain,
+    addr: string,
+    entryDate?: string,
+  ): Promise<ResolveResult> {
     const snap = deps.getSnapshot(chain, addr);
     const now = new Date(deps.now());
     const mode = deps.mode();
@@ -133,10 +239,23 @@ export function createResolver(deps: ResolveDeps) {
       return { ok: true, data: checkedToken(snap, entryDate, now) };
     }
 
+    // Token information goes first and alone. Nansen answers an unknown
+    // address with 200 and an empty token, so without this gate every junk
+    // paste would still pay for the five flow and trader calls.
+    const info = await deps.tokenInformation(chain, addr);
+    if (!info.ok) {
+      if (snap) {
+        return { ok: true, data: { ...checkedToken(snap, entryDate, now), stale: true } };
+      }
+      return { ok: false, error: liveError(info.error.code) };
+    }
+    if (isUnknownToken(info.data)) {
+      return { ok: false, error: liveError("not_found") };
+    }
+
     const range = last24hRange(now);
     const hold = entryDate ? holdingWindow(entryDate, now) : null;
-    const [info, flows1d, flows1h, buyers, sellers, historical] = await Promise.all([
-      deps.tokenInformation(chain, addr),
+    const [flows1d, flows1h, buyers, sellers, historical] = await Promise.all([
       deps.flowIntelligence(chain, addr, "1d"),
       deps.flowIntelligence(chain, addr, "1h"),
       deps.whoBoughtSold(chain, addr, "BUY", range),
@@ -151,7 +270,7 @@ export function createResolver(deps: ResolveDeps) {
         : Promise.resolve(null),
     ]);
 
-    if (info.ok && flows1d.ok) {
+    if (flows1d.ok) {
       const rawSymbol = info.data.symbol?.trim();
       const symbol = sanitizeSymbol(
         rawSymbol && rawSymbol.length > 0 ? rawSymbol : snap?.symbol ?? "TOKEN",
@@ -160,13 +279,18 @@ export function createResolver(deps: ResolveDeps) {
         buyers: buyers.ok ? buyers.data : (snap?.traders.buyers ?? []),
         sellers: sellers.ok ? sellers.data : (snap?.traders.sellers ?? []),
       };
-      const earlyExit = await resolveEarlyExit(
-        chain,
-        addr,
-        info.data.stats.tokenDeploymentDate,
-        now,
-        deps,
-        snap?.earlyExit ?? null,
+      const earlyFallback = snap?.earlyExit ?? null;
+      const earlyExit = await withinBudget(
+        resolveEarlyExit(
+          chain,
+          addr,
+          info.data.stats.tokenDeploymentDate,
+          now,
+          deps,
+          earlyFallback,
+        ),
+        deps.earlyExitBudgetMs ?? DEFAULT_EARLY_EXIT_BUDGET_MS,
+        earlyFallback,
       );
       const token: TokenSnapshot = {
         chain,
@@ -214,18 +338,23 @@ export function createResolver(deps: ResolveDeps) {
       return { ok: true, data: { ...checkedToken(snap, entryDate, now), stale: true } };
     }
 
-    const failed = !info.ok ? info.error : !flows1d.ok ? flows1d.error : null;
     return {
       ok: false,
-      error: liveError(failed?.code ?? "upstream"),
+      error: liveError(flows1d.ok ? "upstream" : flows1d.error.code),
     };
   }
 
   async function listFeaturedChecked(): Promise<CheckedToken[]> {
-    const results = await Promise.all(
+    if (deps.mode() === "live") {
+      // Never fan out ten cold checks for a catalog. Warm rows or snapshot.
+      return FEATURED.map((item) => peekCheck(item.chain, item.address)).filter(
+        (row): row is CheckedToken => row !== null,
+      );
+    }
+    const rows = await Promise.all(
       FEATURED.map((item) => resolveCheck(item.chain, item.address)),
     );
-    return results.filter((row): row is { ok: true; data: CheckedToken } => row.ok).map(
+    return rows.filter((row): row is { ok: true; data: CheckedToken } => row.ok).map(
       (row) => row.data,
     );
   }
@@ -245,7 +374,9 @@ export function createResolver(deps: ResolveDeps) {
 
   /** The Today board: biggest absolute flow shifts, chips attached. */
   async function listBoard(): Promise<BoardRow[]> {
-    if (deps.mode() === "snapshot") {
+    // The board is deferred in v1. Live would spend ~25 credits per refresh
+    // on a panel nobody sees, so live serves the baked board too.
+    if (deps.mode() !== "sim") {
       return deps.getBoard();
     }
     const screener = await deps.tokenScreener([...CHAINS]);
@@ -276,7 +407,25 @@ export function createResolver(deps: ResolveDeps) {
     return rows.filter((row): row is BoardRow => row !== null);
   }
 
-  return { resolveCheck, listFeaturedChecked, listBoard };
+  return { resolveCheck, peekCheck, listFeaturedChecked, listBoard };
+}
+
+/** Resolve within `ms`, or give the fallback. The work keeps running and
+ * warms the cache for the next visit. */
+function withinBudget<T>(work: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(fallback);
+      },
+    );
+  });
 }
 
 /** The Today board caps at twelve rows. */
@@ -318,9 +467,16 @@ function backend(): FlowBackend {
   return dataMode() === "sim" ? sim : nansen;
 }
 
-export const { resolveCheck, listFeaturedChecked, listBoard } = createResolver({
+export const { resolveCheck, peekCheck, listFeaturedChecked, listBoard } = createResolver({
   mode: () => dataMode(),
-  getSnapshot,
+  // Real Nansen captures first; the sim fixture only for tokens not captured.
+  getSnapshot: (chain, address) =>
+    getLiveSnapshot(chain, address) ?? getSnapshot(chain, address),
+  gate: new ColdGate(() => ({
+    perClientPerHour: env.COLD_CHECKS_PER_CLIENT_HOUR,
+    globalPerHour: env.COLD_CHECKS_PER_HOUR,
+  })),
+  resultTtlMs: () => env.CACHE_TTL_SECONDS * 1000,
   getBoard: getBoardSnapshot,
   flowIntelligence: (chain, address, timeframe) =>
     backend().flowIntelligence(chain, address, timeframe),

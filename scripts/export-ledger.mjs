@@ -13,7 +13,9 @@ try {
   entries = [];
 }
 
-const billed = entries.filter((row) => row && row.cacheHit === false);
+const billed = entries.filter(
+  (row) => row && row.cacheHit === false && typeof row.httpStatus === "number",
+);
 const byPath = new Map();
 for (const row of billed) {
   const key = row.path ?? "unknown";
@@ -37,16 +39,16 @@ if (byPath.size === 0) {
   lines.push("No outbound calls yet. Public demo stays snapshot-only.");
   lines.push("");
   lines.push(
-    "1,000+ non-cache calls need `DATA_MODE=live` and a key. Run `pnpm warmup` locally after you add the key.",
+    "100+ non-cache calls need `DATA_MODE=live` and a key. Run `pnpm warmup` locally after you add the key.",
   );
 } else {
   for (const [pathName, count] of [...byPath.entries()].sort()) {
     lines.push(`- \`${pathName}\`: ${count}`);
   }
-  if (billed.length < 1000) {
+  if (billed.length < 100) {
     lines.push("");
     lines.push(
-      `Need ${1000 - billed.length} more non-cache calls for the submission bar.`,
+      `Need ${100 - billed.length} more non-cache calls for the submission bar.`,
     );
   }
 }

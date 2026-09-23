@@ -11,6 +11,8 @@ const liveEnv: Env = {
   CACHE_TTL_SECONDS: 120,
   RATE_LIMIT_PER_MIN: 30,
   DAILY_CALL_CAP: 800,
+  COLD_CHECKS_PER_CLIENT_HOUR: 10,
+  COLD_CHECKS_PER_HOUR: 60,
   ALLOWED_ORIGINS: "http://localhost:3000",
 };
 
@@ -189,5 +191,28 @@ describe("nansen client", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("forbidden_endpoint");
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe("nansen client credit guard", () => {
+  const addr = "So11111111111111111111111111111111111111112";
+
+  it("sends one request for identical concurrent calls", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse(200, flowBody));
+    const api = client(fetchImpl as unknown as typeof fetch);
+    await Promise.all([
+      api.flowIntelligence("solana", addr, "1d"),
+      api.flowIntelligence("solana", addr, "1d"),
+    ]);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("remembers a not-found token instead of paying again", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse(404, { message: "nope" }));
+    const api = client(fetchImpl as unknown as typeof fetch);
+    await api.flowIntelligence("solana", addr, "1d");
+    const second = await api.flowIntelligence("solana", addr, "1d");
+    expect(second.ok).toBe(false);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 });

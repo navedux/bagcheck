@@ -4,11 +4,20 @@ type Bucket = { count: number; resetAt: number };
 
 const buckets = new Map<string, Bucket>();
 
+const MAX_BUCKETS = 10_000;
+
+function sweep(now: number): void {
+  for (const [key, bucket] of buckets) {
+    if (bucket.resetAt <= now) buckets.delete(key);
+  }
+}
+
 export function allowRequest(key: string, now = Date.now()): boolean {
   const windowMs = 60_000;
   const limit = env.RATE_LIMIT_PER_MIN;
   const existing = buckets.get(key);
   if (!existing || existing.resetAt <= now) {
+    if (buckets.size >= MAX_BUCKETS) sweep(now);
     buckets.set(key, { count: 1, resetAt: now + windowMs });
     return true;
   }

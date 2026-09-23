@@ -23,7 +23,6 @@ import {
   COL_STRIP,
   SIGNAL_FORK_HINT,
   STALE_REASON,
-  STRIP_EMPTY,
   WINDOW_RAIL,
   clockLine,
   stabilityLine,
@@ -39,22 +38,25 @@ import { flipCount, runLengthDays } from "@/lib/verdict";
  * Read top-to-bottom. Each `at` value is ms after mount.
  *
  *    0ms   token line, the signal word, and the flow chip
- *   80ms   why, 24h clock, date
- *  200ms   score meters
- *  360ms   volume / liquidity
- *  500ms   30-day field
- *  640ms   net traders
- *  780ms   in / net / out parallel plot
+ *   70ms   why, 24h clock, date
+ *  140ms   score meters
+ *  200ms   volume / liquidity
+ *  260ms   30-day field
+ *  310ms   net traders
+ *  360ms   in / net / out parallel plot
+ *
+ * The claim lands first and alone; evidence follows fast enough that
+ * nothing waits on decoration (all in by ~520ms).
  * ───────────────────────────────────────────────────────── */
 
 const TIMING = {
   claim: 0, // token + word
-  why: 80, // why, clock, date
-  meters: 200, // bid / retail / dist
-  stats: 360, // volume and liquidity
-  strip: 500, // 30-day field
-  traders: 640, // buyers and sellers
-  bridge: 780, // in / net / out plot
+  why: 70, // why, clock, date
+  meters: 140, // bid / retail / dist
+  stats: 200, // volume and liquidity
+  strip: 260, // 30-day field
+  traders: 310, // buyers and sellers
+  bridge: 360, // in / net / out plot
 };
 
 const STAGE = {
@@ -117,10 +119,13 @@ export function CheckClient({
   const bag = parseBag(raw);
   const resolvedDate = entryDate ?? bag.entryDate;
   const thin = checked.verdict === "too-thin";
-  const [stage, setStage] = useState(0);
+  // Stage is keyed to the run, so a new token (or replay) starts from zero
+  // without resetting state inside the effect.
+  const runKey = `${checked.chain}:${checked.address}:${replayTrigger}`;
+  const [run, setRun] = useState({ key: runKey, stage: 0 });
+  const stage = run.key === runKey ? run.stage : 0;
 
   useEffect(() => {
-    setStage(0);
     const timers: number[] = [];
     const steps = [
       TIMING.claim,
@@ -132,12 +137,12 @@ export function CheckClient({
       TIMING.bridge,
     ];
     for (const [index, at] of steps.entries()) {
-      timers.push(window.setTimeout(() => setStage(index + 1), at));
+      timers.push(window.setTimeout(() => setRun({ key: runKey, stage: index + 1 }), at));
     }
     return () => {
       for (const timer of timers) window.clearTimeout(timer);
     };
-  }, [checked.chain, checked.address, replayTrigger]);
+  }, [runKey]);
 
   return (
     <div>
@@ -227,31 +232,25 @@ export function CheckClient({
         </CheckBeat>
       )}
 
-      {!thin ? (
+      {!thin && checked.history.length > 0 ? (
         <CheckBeat on={stage >= STAGE.strip} className="mt-10">
           <section className="border-ticks border-t border-[var(--line)] pt-10">
             <p className="col">{COL_STRIP}</p>
-            {checked.history.length > 0 ? (
-              <>
-                <div className="mt-4">
-                  <TrackField
-                    daily={checked.daily}
-                    history={checked.history}
-                    lit={stage >= STAGE.strip}
-                    stagger={STRIP.stagger}
-                  />
-                </div>
-                <p className="stance mt-3">
-                  {stabilityLine(
-                    runLengthDays(checked.history),
-                    flipCount(checked.history),
-                    checked.history.length,
-                  )}
-                </p>
-              </>
-            ) : (
-              <p className="caption mt-4">{STRIP_EMPTY}</p>
-            )}
+            <div className="mt-4">
+              <TrackField
+                daily={checked.daily}
+                history={checked.history}
+                lit={stage >= STAGE.strip}
+                stagger={STRIP.stagger}
+              />
+            </div>
+            <p className="stance mt-3">
+              {stabilityLine(
+                runLengthDays(checked.history),
+                flipCount(checked.history),
+                checked.history.length,
+              )}
+            </p>
           </section>
         </CheckBeat>
       ) : null}

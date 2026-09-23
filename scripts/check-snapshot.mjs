@@ -12,6 +12,8 @@ const forbidden = [
   "premium_labels",
   "include_smart_money_labels",
   "NEXT_PUBLIC_NANSEN",
+  "address_label",
+  "first_funder_name",
 ];
 
 async function walk(dir) {

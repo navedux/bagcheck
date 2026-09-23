@@ -11,6 +11,7 @@
     "test": "vitest run",
     "check-snapshot": "node scripts/check-snapshot.mjs",
     "refresh-snapshot": "REFRESH_SNAPSHOT=1 vitest run src/lib/sim/refresh-snapshot.test.ts",
+    "refresh-live-snapshot": "REFRESH_LIVE=1 vitest run src/lib/live-snapshot.test.ts",
     "export-ledger": "node scripts/export-ledger.mjs",
     "warmup": "node scripts/warmup.mjs"
   },

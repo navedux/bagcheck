@@ -63,13 +63,15 @@ export function DateField({
   }
 
   function toggle() {
+    if (!open) {
+      const start = parseIsoDay(ticket.entryDate ?? today);
+      setView({ year: start.year, month: start.month });
+    }
     setOpen((was) => !was);
   }
 
   useEffect(() => {
     if (!open) return;
-    const start = parseIsoDay(ticket.entryDate ?? today);
-    setView({ year: start.year, month: start.month });
     place();
     const onMove = () => place();
     window.addEventListener("resize", onMove);

@@ -32,4 +32,11 @@ describe("holding window", () => {
     expect(range.to).toBe("2026-09-19T12:00:00.000Z");
     expect(range.from).toBe("2026-09-18T12:00:00.000Z");
   });
+
+  it("floors the 24h range to the hour so repeat checks share a cache key", () => {
+    const a = last24hRange(new Date("2026-09-19T12:04:10.123Z"));
+    const b = last24hRange(new Date("2026-09-19T12:59:59.999Z"));
+    expect(a).toEqual(b);
+    expect(a.to).toBe("2026-09-19T12:00:00.000Z");
+  });
 });

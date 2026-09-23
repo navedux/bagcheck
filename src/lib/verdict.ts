@@ -33,6 +33,13 @@ export const VOLUME_FLOOR_USD = 10_000;
  * alone at a stricter bar.
  */
 export const UNTRACKED_LIQUIDITY_VOLUME_FLOOR_USD = 250_000;
+/**
+ * Fresh-wallet net flow above a full day of volume is not a retail bid.
+ * Live Sep 23: WETH fresh flow was 336% of 24h volume, AERO 211%, base WETH
+ * 692%. That is wrapping, bridging, and CEX withdrawals landing in new
+ * wallets. Past this cap the fresh term is treated as transfer noise (0).
+ */
+export const FRESH_NOISE_CAP = 1;
 
 export function isTooThin(stats: TokenStats): boolean {
   const volume = stats.volume24hUsd;
@@ -71,7 +78,7 @@ export function scoreVerdict(
   const fr = n(flows.freshWalletsNetFlowUsd);
   const ex = n(flows.exchangeNetFlowUsd) * EXCHANGE_SIGN;
   const bid = 3 * st + 1.5 * wh;
-  const retail = fr;
+  const retail = Math.abs(fr) > FRESH_NOISE_CAP ? 0 : fr;
   const dist = ex - Math.min(st, 0);
 
   const breakdown: ScoreBreakdown = {
@@ -92,14 +99,18 @@ export function scoreVerdict(
   if (bid >= T && dist < T / 2 && retail < bid) {
     return { verdict: "still-bid", breakdown };
   }
+  // Exchange deposits outrank fresh-wallet buying. Live Sep 23: LINK took
+  // 53% of its day's volume onto exchanges and still read retail pump when
+  // retail was checked first. Tokens heading to exchanges are distribution,
+  // whoever else is buying.
+  if (dist >= T || (st < -T && ex > 0)) {
+    return { verdict: "distribution", breakdown };
+  }
   // Retail leads when fresh wallets clear T and outsize the smart bid. Live
   // data Sep 19: real pumps often carry both (PEPE retail 0.81, bid 0.075),
   // so "bid absent" alone under-called retail-led days.
   if (retail >= T && retail > bid) {
     return { verdict: "retail-pump", breakdown };
-  }
-  if (dist >= T || (st < -T && ex > 0)) {
-    return { verdict: "distribution", breakdown };
   }
   if (signsDisagree(st, wh) && Math.abs(st) >= T / 2 && Math.abs(wh) >= T / 2) {
     return { verdict: "split", breakdown };

@@ -147,7 +147,7 @@ describe("verdict copy", () => {
     );
     expect(ACTION_RULE).toBe("Rule");
     expect(WINDOW_RAIL).toBe(
-      "The signal is the last 24 hours. A date turns a buy signal into a hold signal, and don't-buy into a sell signal.",
+      "Holding changes the word, not the read: buy becomes hold, don't-buy becomes sell.",
     );
     for (const line of [
       HOME_HEAD,
@@ -206,7 +206,7 @@ describe("verdict copy", () => {
     expect(missingCopy("address").title).toBe("That is not a token address.");
     expect(missingCopy("address").reason).toBe(PASTE_ERROR);
     expect(missingCopy("chain").title).toContain("chain");
-    expect(missingCopy("snapshot").reason).toContain("demo snapshot");
+    expect(missingCopy("snapshot").reason).toContain("featured tokens");
     expect(missingCopy("not-found").title).toBe("No read for this token.");
   });
 

@@ -104,7 +104,6 @@ export function WatchList({
   useEffect(() => {
     if (items.length === 0) return;
     let cancelled = false;
-    setFailed(false);
     fetch("/api/watch", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -162,14 +161,17 @@ export function WatchList({
   const missing = loading
     ? []
     : items.filter((item) => !rowsByKey.has(rowKey(item)));
+  // Live reads carry no daily history; an empty column of dashes reads broken.
+  const hasStrip = ordered.some((row) => row.history.length > 0);
 
   return (
     <section
-      className={
-        flush
-          ? undefined
-          : "border-ticks border-t border-[var(--line)] pt-10"
-      }
+      className={[
+        flush ? "" : "border-ticks border-t border-[var(--line)] pt-10",
+        hasStrip ? "" : "no-strip",
+      ]
+        .filter(Boolean)
+        .join(" ") || undefined}
       style={flush ? undefined : ({ "--tick": "var(--p-cyan)" } as CSSProperties)}
     >
       <div className="flex items-center justify-between gap-4 pb-5">
@@ -188,7 +190,10 @@ export function WatchList({
       {failed && !loading ? (
         <p className="caption pb-4">
           {WATCH_LIST_FAIL}{" "}
-          <button type="button" className="sheet-text-btn" onClick={() => setReload((n) => n + 1)}>
+          <button type="button" className="sheet-text-btn" onClick={() => {
+              setFailed(false);
+              setReload((n) => n + 1);
+            }}>
             {WATCH_ADD_RETRY}
           </button>
         </p>

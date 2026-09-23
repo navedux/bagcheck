@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { HAS_SIM_FIXTURE } from "../../test/fixture";
 import { FEATURED } from "../../../data/featured";
 import { SIM_TOKENS } from "../../../data/sim-tokens";
 import { createResolver } from "../resolve-check";
@@ -290,7 +291,7 @@ describe("sim board", () => {
     expect(key(today)).not.toBe(key(tomorrow));
   });
 
-  it("bakes a non-empty board into the snapshot", () => {
+  it.skipIf(!HAS_SIM_FIXTURE)("bakes a non-empty board into the snapshot", () => {
     const baked = getBoardSnapshot();
     expect(baked.length).toBeGreaterThan(0);
     for (const row of baked) {

@@ -86,35 +86,39 @@ export const MODE_CREDIT: Record<"live" | "sim" | "snapshot", string> = {
 export const PARTIAL_COVERAGE_LINE =
   "Whale, public figure, and exchange labels start 11 Mar 2025. This window only uses covered cohorts.";
 
-export const TRADERS_CAPTION = "Aggregated DEX volume, not identities.";
+export const TRADERS_CAPTION = "Top wallets by net DEX volume. Addresses only, no labels.";
 export const TRADERS_EMPTY_BUY = "No buyers in this window.";
 export const TRADERS_EMPTY_SELL = "No sellers in this window.";
 export const FLOW_EMPTY = "No cohort flow to plot.";
 export const STRIP_EMPTY = "No 30-day field yet.";
 
-export const EMPTY_SNAPSHOT_HEAD = "Not in this snapshot.";
+export const EMPTY_SNAPSHOT_HEAD = "Not in this demo.";
 export const EMPTY_SNAPSHOT_LINE =
-  "Not in the demo snapshot. Run locally with a key to check any token.";
+  "This demo has saved reads for the featured tokens only. Run it locally with a Nansen key to check any token.";
 
 export const RATE_LIMIT_HEAD = "Too many checks.";
 export const RATE_LIMIT_LINE = "Wait a minute, then try again.";
 
-export const MISSING_CHAIN_HEAD = "That chain is not in v1.";
+export const MISSING_CHAIN_HEAD = "That chain is not supported.";
 export const MISSING_CHAIN_LINE = "Hold Check reads Solana, Ethereum, and Base.";
 export const MISSING_ADDRESS_HEAD = "That is not a token address.";
 export const MISSING_TOKEN_HEAD = "No read for this token.";
 export const MISSING_LIVE_HEAD = "Could not read this token.";
-export const LIVE_NOT_FOUND = "Nansen has no row for this token.";
-export const LIVE_AUTH = "Nansen key was rejected. Showing the snapshot if we have one.";
-export const LIVE_UNAVAILABLE = "Nansen is unavailable right now.";
+export const BUSY_HEAD = "Hourly limit reached.";
+export const LIVE_NOT_FOUND =
+  "Nansen has no flow data for this token on this chain. Check the chain, or try another token.";
+export const LIVE_AUTH = "Nansen did not accept the request. Try again later.";
+export const LIVE_UNAVAILABLE = "Nansen is not responding right now. Try again in a minute.";
+export const LIVE_BUSY =
+  "Too many new tokens from your network this hour. Try a featured token, or come back later.";
 
 export const STALE_REASON =
-  "Live Nansen call failed. Showing the committed snapshot.";
+  "Live read unavailable. Showing the last saved read.";
 
 export const HOME_EYEBROW = "One token. One signal.";
 export const HOME_HEAD = "A buy, hold, or sell signal.";
 export const HOME_NEXT =
-  "Paste a token. You get one signal from the last 24 hours of cohort flow.";
+  "Paste a token address. One signal from 24 hours of Nansen cohort flow: traders, whales, fresh wallets, exchanges.";
 export const HOME_OR = "Or try one of these";
 export const HOME_AGAIN = "Check another token";
 export const PASTE_PLACEHOLDER = "Token address";
@@ -127,6 +131,7 @@ export const PASTE_NEED_0X = "Ethereum and Base addresses start with 0x.";
 export const PASTE_CHAIN_EVM = "That token address is for Ethereum or Base. Switch the chain.";
 export const PASTE_CHAIN_SOL = "That token address is for Solana. Switch the chain.";
 export const PASTE_PENDING = "Checking";
+export const CHECK_LOADING = "Reading 24h cohort flow from Nansen.";
 export const CHAIN_AUTO = "Auto";
 export const CHAIN_MENU = "Chain";
 export const CHAIN_AUTO_HINT = "Read from the token address.";
@@ -171,11 +176,13 @@ export type MissingKind =
   | "snapshot"
   | "rate"
   | "not-found"
+  | "busy"
   | "unavailable";
 
 export function missingKindFromCode(code: string): MissingKind {
   if (code === "not_in_snapshot") return "snapshot";
   if (code === "not_found") return "not-found";
+  if (code === "busy") return "busy";
   return "unavailable";
 }
 
@@ -185,6 +192,7 @@ export function missingCopy(kind: MissingKind): { title: string; reason: string 
   if (kind === "rate") return { title: RATE_LIMIT_HEAD, reason: RATE_LIMIT_LINE };
   if (kind === "not-found") return { title: MISSING_TOKEN_HEAD, reason: LIVE_NOT_FOUND };
   if (kind === "unavailable") return { title: MISSING_LIVE_HEAD, reason: LIVE_UNAVAILABLE };
+  if (kind === "busy") return { title: BUSY_HEAD, reason: LIVE_BUSY };
   return { title: EMPTY_SNAPSHOT_HEAD, reason: EMPTY_SNAPSHOT_LINE };
 }
 
@@ -270,9 +278,9 @@ export const ACTION_NOTES = "Size and cost";
 export const ACTION_NOTES_HINT = "Stored on this device. They do not change the signal.";
 export const ACTION_COPY = "Copy link";
 export const WINDOW_RAIL =
-  "The signal is the last 24 hours. A date turns a buy signal into a hold signal, and don't-buy into a sell signal.";
+  "Holding changes the word, not the read: buy becomes hold, don't-buy becomes sell.";
 export const CLOCK_24H = "Last 24 hours.";
-export const SCORE_MARK = "Mark is 6% of 24h volume.";
+export const SCORE_MARK = "Net flow as a share of 24h volume. The tick is the 6% line.";
 export const COL_SINCE = "Since you bought";
 export const FLOW_HEAD = "In and out, 24h";
 export const FLOW_IN = "In";

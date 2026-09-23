@@ -2,6 +2,7 @@ import { env } from "@/lib/env";
 import { err, ok } from "@/lib/envelope";
 import { API_HEADERS } from "@/lib/headers";
 import { rejectIfGuarded } from "@/lib/origin";
+import { clientKey } from "@/lib/rate-limit";
 import { resolveCheck } from "@/lib/resolve-check";
 import { checkQuerySchema, normalizeAddress } from "@/lib/validate";
 
@@ -30,13 +31,16 @@ export async function GET(request: Request) {
     parsed.data.chain,
     normalizeAddress(parsed.data.address),
     parsed.data.entryDate,
+    { client: clientKey(request) },
   );
 
   if (!result.ok) {
     const status =
       result.error.code === "not_in_snapshot" || result.error.code === "not_found"
         ? 404
-        : 502;
+        : result.error.code === "busy"
+          ? 429
+          : 502;
     return Response.json(err(result.error.code, result.error.message), {
       status,
       headers: API_HEADERS,

@@ -195,8 +195,11 @@ export function checkedToken(
   entryDate?: string,
   now = new Date(),
 ): CheckedToken {
-  const since = entryDate
-    ? toSinceRead(sinceWindowFor(snapshot, entryDate, now), snapshot.stats.liquidityUsd)
-    : null;
+  // Without daily rows there is no holding window to read; an empty window
+  // would score "quiet" and invent a since-you-bought line.
+  const since =
+    entryDate && snapshot.daily.length > 0
+      ? toSinceRead(sinceWindowFor(snapshot, entryDate, now), snapshot.stats.liquidityUsd)
+      : null;
   return toCheckedToken(snapshot, "snapshot", false, since);
 }

@@ -48,3 +48,5 @@ next-env.d.ts
 /AGENTS.md
 /ledger/
 /data/call-log.json
+vercel.env
+/.claude/

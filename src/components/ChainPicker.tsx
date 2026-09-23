@@ -16,7 +16,7 @@ import {
   CHAIN_MENU,
   chainAutoHint,
 } from "@/lib/copy";
-import { CHAINS, type Chain, type ChainChoice } from "@/lib/types";
+import { CHAINS, type ChainChoice } from "@/lib/types";
 import type { ChainGuess } from "@/lib/validate";
 
 const OPTIONS: ChainChoice[] = ["auto", ...CHAINS];

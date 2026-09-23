@@ -26,6 +26,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The badge sits over the footer attribution and ends up in recordings.
+  devIndicators: false,
   images: {
     remotePatterns: [{ protocol: "https", hostname: "img.logo.dev" }],
   },

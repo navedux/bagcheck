@@ -14,15 +14,23 @@ export type LedgerEntry = {
 
 export class Ledger {
   readonly entries: LedgerEntry[] = [];
+  /** Writes are read-modify-write, so they run one at a time. */
+  private queue: Promise<void> = Promise.resolve();
 
   constructor(
     private readonly writeFile: boolean,
     private readonly filePath = path.join(process.cwd(), "data", "call-log.json"),
   ) {}
 
-  async append(entry: LedgerEntry): Promise<void> {
+  append(entry: LedgerEntry): Promise<void> {
     this.entries.push(entry);
-    if (!this.writeFile) return;
+    if (this.entries.length > 5_000) this.entries.splice(0, this.entries.length - 5_000);
+    if (!this.writeFile) return Promise.resolve();
+    this.queue = this.queue.then(() => this.persist(entry));
+    return this.queue;
+  }
+
+  private async persist(entry: LedgerEntry): Promise<void> {
     try {
       await mkdir(path.dirname(this.filePath), { recursive: true });
       let existing: LedgerEntry[] = [];

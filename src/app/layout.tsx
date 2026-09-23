@@ -35,12 +35,14 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         <SiteNav />
         <div className="flex flex-1 flex-col">{children}</div>
-        <footer className="px-6 py-8 sm:px-8">
+        <footer className="pt-8 pb-8">
           <div
-            className="border-ticks mb-6 border-t border-[var(--line)]"
+            className="border-ticks border-t border-[var(--line)]"
             style={{ "--tick": "var(--p-green)" } as CSSProperties}
           />
-          <Attribution mode={modeLabel()} />
+          <div className="mx-auto w-full max-w-4xl px-6 pt-6">
+            <Attribution mode={modeLabel()} />
+          </div>
         </footer>
         <ToastHost />
       </body>

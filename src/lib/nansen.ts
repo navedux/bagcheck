@@ -69,6 +69,22 @@ export type NansenDeps = {
 };
 
 const TIMEOUT_MS = 15_000;
+const MISS_TTL_MS = 30 * 60_000;
+
+/**
+ * Day-granular ranges that closed before today never change, so they cache
+ * for a day. Ranges that include today refresh hourly. Timestamp ranges
+ * (the rolling 24h window) use the base who-bought-sold TTL.
+ */
+function rangeTtl(
+  date: { from: string; to: string },
+  now: number,
+  ttl: ReturnType<typeof ttlMs>,
+): number {
+  if (date.to.includes("T")) return ttl.wbs;
+  const today = new Date(now).toISOString().slice(0, 10);
+  return date.to < today ? ttl.since : ttl.info;
+}
 
 function headerInt(headers: Headers, name: string): number | null {
   const raw = headers.get(name);
@@ -79,6 +95,8 @@ function headerInt(headers: Headers, name: string): number | null {
 
 export function createNansenClient(deps: NansenDeps) {
   let outboundStopped: NansenError["code"] | null = null;
+  /** Identical calls already on the wire share one request and one charge. */
+  const inflight = new Map<string, Promise<CallResult<unknown>>>();
   let usedToday = 0;
   let usedDay = "";
 
@@ -134,6 +152,11 @@ export function createNansenClient(deps: NansenDeps) {
     }
 
     const key = cacheKey({ path, body });
+    const missKey = `miss:${key}`;
+    const knownMiss = deps.cache.get<NansenError>(missKey, deps.now());
+    if (knownMiss !== undefined) {
+      return { ok: false, error: knownMiss };
+    }
     const cached = deps.cache.get<T>(key, deps.now());
     if (cached !== undefined) {
       await deps.ledger.append({
@@ -166,21 +189,39 @@ export function createNansenClient(deps: NansenDeps) {
       };
     }
 
+    const pending = inflight.get(key);
+    if (pending) return pending as Promise<CallResult<T>>;
+
     if (!reserveCredit(deps.now(), CREDITS[path])) {
       return { ok: false, error: { code: "budget_exhausted", path, status: null } };
     }
 
-    const result = await requestWithRetry(path, body, parse);
-    if (result.ok) {
-      deps.cache.set(key, result.data, ttlMs, deps.now());
-    } else if (
-      result.error.code === "timeout" ||
-      result.error.code === "upstream" ||
-      result.error.code === "schema_mismatch"
-    ) {
-      refund(CREDITS[path]);
+    const request = (async (): Promise<CallResult<T>> => {
+      const result = await requestWithRetry(path, body, parse);
+      if (result.ok) {
+        deps.cache.set(key, result.data, ttlMs, deps.now());
+      } else if (
+        result.error.code === "not_found" ||
+        result.error.code === "bad_request"
+      ) {
+        // A token Nansen does not know stays unknown for a while. Without
+        // this, pasting junk addresses in a loop is a free way to burn credits.
+        deps.cache.set(missKey, result.error, MISS_TTL_MS, deps.now());
+      } else if (
+        result.error.code === "timeout" ||
+        result.error.code === "upstream" ||
+        result.error.code === "schema_mismatch"
+      ) {
+        refund(CREDITS[path]);
+      }
+      return result;
+    })();
+    inflight.set(key, request as Promise<CallResult<unknown>>);
+    try {
+      return await request;
+    } finally {
+      inflight.delete(key);
     }
-    return result;
   }
 
   async function requestWithRetry<T>(
@@ -420,7 +461,7 @@ export function createNansenClient(deps: NansenDeps) {
         WHO_BOUGHT_SOLD_PATH,
         parsed.data,
         (json) => tradersFromRows(whoBoughtSoldResponseSchema.parse(json).data, perPage),
-        ttl().wbs,
+        rangeTtl(date, deps.now(), ttl()),
       );
     },
 

@@ -98,7 +98,6 @@ export function WatchAddModal({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const ac = new AbortController();
-    setLoad("loading");
     fetch("/api/featured", { signal: ac.signal })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error("bad"))))
       .then((json: unknown) => {
@@ -228,7 +227,10 @@ export function WatchAddModal({ onClose }: { onClose: () => void }) {
         {load === "fallback" ? (
           <p className="sheet-note">
             {WATCH_ADD_FAIL}{" "}
-            <button type="button" className="sheet-text-btn" onClick={() => setReload((n) => n + 1)}>
+            <button type="button" className="sheet-text-btn" onClick={() => {
+              setLoad("loading");
+              setReload((n) => n + 1);
+            }}>
               {WATCH_ADD_RETRY}
             </button>
           </p>

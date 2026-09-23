@@ -619,6 +619,45 @@ textarea.field {
   transform: translateY(0);
 }
 
+/* Loading skeleton: static blocks, one decelerating progress run. The rail
+ * fills fast, then crawls, and never loops: a live read takes 1 to 4s. */
+.check-loading {
+  opacity: 0;
+  animation: load-in var(--dur-ui) var(--ease-out) 120ms forwards;
+}
+
+.skel {
+  display: block;
+  background: var(--raised);
+}
+
+.load-rail {
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.load-rail > span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: load-run 6s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+@keyframes load-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes load-run {
+  to {
+    transform: scaleX(0.92);
+  }
+}
+
 .check-beat:has(.date-pop) {
   position: relative;
   z-index: 12;
@@ -1669,6 +1708,11 @@ button:focus-visible {
     scroll-behavior: auto !important;
   }
 
+  .load-rail > span {
+    animation: none;
+    transform: scaleX(0.5);
+  }
+
   .check-beat,
   .check-beat.is-in,
   .strip-hero .strip-cell,
@@ -1719,4 +1763,28 @@ button:focus-visible {
     opacity: 1;
     transform: none;
   }
+}
+
+/* The 30-day column holds its width so rows do not jump, but stays blank
+ * when no row has history (live mode). */
+.no-strip .row-strip {
+  visibility: hidden;
+}
+
+.about-states {
+  display: block;
+}
+
+.about-state {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.about-state.is-head {
+  border-top: 0;
+  padding-top: 0;
 }

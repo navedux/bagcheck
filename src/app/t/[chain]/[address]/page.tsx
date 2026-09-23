@@ -37,7 +37,8 @@ export default async function CheckPage({ params, searchParams }: PageProps) {
   }
 
   const headerList = await headers();
-  if (!allowRequest(`check:${clientKeyFromHeaders(headerList)}`)) {
+  const client = clientKeyFromHeaders(headerList);
+  if (!allowRequest(`check:${client}`)) {
     return (
       <Missing
         tokenLabel={truncateAddress(normalizeAddress(parsedAddress.data))}
@@ -52,6 +53,7 @@ export default async function CheckPage({ params, searchParams }: PageProps) {
     parsedChain,
     normalizeAddress(parsedAddress.data),
     entryDate,
+    { client },
   );
 
   if (!result.ok) {

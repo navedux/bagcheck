@@ -1,0 +1,678 @@
+[
+  {
+    "chain": "ethereum",
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "symbol": "USDC",
+    "stats": {
+      "volume24hUsd": 673258816.6671394,
+      "marketCapUsd": 75231662383.98277,
+      "liquidityUsd": 569793095.0162432,
+      "totalHolders": 3313814,
+      "tokenDeploymentDate": "2018-08-03 19:28:24"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": -98837.71683216715,
+      "whaleNetFlowUsd": -1387258.5809730547,
+      "publicFigureNetFlowUsd": 4903195.745721217,
+      "exchangeNetFlowUsd": 534881738.8128299,
+      "freshWalletsNetFlowUsd": 657664040.4076244
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 2580.1816086828403,
+      "publicFigureNetFlowUsd": -5750.375580486752,
+      "exchangeNetFlowUsd": 448043.3116247511,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "0x52aa899454998be5b000ad077a46bbe360f4e497",
+          "boughtVolumeUsd": 28172354.34113838,
+          "soldVolumeUsd": 27362986.220917344
+        },
+        {
+          "address": "0x585d44727129b9c69791b10238ca605932938b4f",
+          "boughtVolumeUsd": 20957779.86622759,
+          "soldVolumeUsd": 19467197.71455346
+        },
+        {
+          "address": "0x7a9e7a2453cc940b112d668656404a8ffea8cb98",
+          "boughtVolumeUsd": 14955380.328327017,
+          "soldVolumeUsd": 4960721.523309505
+        }
+      ],
+      "sellers": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "boughtVolumeUsd": 51280960.844895676,
+          "soldVolumeUsd": 53871334.766475305
+        },
+        {
+          "address": "0xbee3211ab312a8d065c4fef0247448e17a8da000",
+          "boughtVolumeUsd": 14314480.275355125,
+          "soldVolumeUsd": 16589511.949414881
+        },
+        {
+          "address": "0xe8736af1926e9d8f5a6602fbbb0893b26436d710",
+          "boughtVolumeUsd": 14170407.637014193,
+          "soldVolumeUsd": 14260678.692975318
+        }
+      ]
+    },
+    "earlyExit": null,
+    "daily": []
+  },
+  {
+    "chain": "ethereum",
+    "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "symbol": "WETH",
+    "stats": {
+      "volume24hUsd": 313741880.01336,
+      "marketCapUsd": 5582790668.821516,
+      "liquidityUsd": 0,
+      "totalHolders": 589446,
+      "tokenDeploymentDate": "2017-12-12 11:17:35"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": 7323.393837432899,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": -1346359.0194941496,
+      "exchangeNetFlowUsd": 12216390.849708755,
+      "freshWalletsNetFlowUsd": 1054404042.3980113
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": -5579500.471701373,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "boughtVolumeUsd": 11510064.273128072,
+          "soldVolumeUsd": 7593557.019685443
+        },
+        {
+          "address": "0xeff6cb8b614999d130e537751ee99724d01aa167",
+          "boughtVolumeUsd": 3847209.149951634,
+          "soldVolumeUsd": 3374308.3488598056
+        },
+        {
+          "address": "0x8aecc5526f92a46718f8e68516d22038d8670e0d",
+          "boughtVolumeUsd": 1498031.835646224,
+          "soldVolumeUsd": 0
+        }
+      ],
+      "sellers": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "boughtVolumeUsd": 90597891.74771154,
+          "soldVolumeUsd": 96039884.36526185
+        },
+        {
+          "address": "0x585d44727129b9c69791b10238ca605932938b4f",
+          "boughtVolumeUsd": 6414950.215802506,
+          "soldVolumeUsd": 6690870.765947021
+        },
+        {
+          "address": "0xe3d41d19564922c9952f692c5dd0563030f5f2ef",
+          "boughtVolumeUsd": 3267127.616031652,
+          "soldVolumeUsd": 4541556.933343842
+        }
+      ]
+    },
+    "earlyExit": {
+      "sellers": 10,
+      "earlyBuyers": 50,
+      "overlap": 0,
+      "windowDays": 7,
+      "earlyDays": 10
+    },
+    "daily": []
+  },
+  {
+    "chain": "solana",
+    "address": "So11111111111111111111111111111111111111112",
+    "symbol": "SOL",
+    "stats": {
+      "volume24hUsd": 5159978377.470646,
+      "marketCapUsd": 67452020506.77114,
+      "liquidityUsd": 0,
+      "totalHolders": null,
+      "tokenDeploymentDate": "2021-11-01 10:13:01"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": 76050.18505896146,
+      "whaleNetFlowUsd": -3431037.4375269013,
+      "publicFigureNetFlowUsd": -748410.3763129449,
+      "exchangeNetFlowUsd": -47529327.0441138,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 131964.27714263432,
+      "whaleNetFlowUsd": -26829.751893395936,
+      "publicFigureNetFlowUsd": 27246.867952172764,
+      "exchangeNetFlowUsd": 3227011.4304779773,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "MfDuWeqSHEqTFVYZ7LoexgAK9dxk7cy4DFJWjWMGVWa",
+          "boughtVolumeUsd": 70219424.60836643,
+          "soldVolumeUsd": 69860640.71059968
+        },
+        {
+          "address": "EHcege7dok1iYs7SxL2XzDPvhg6XzMVcx2V5SkMUurJP",
+          "boughtVolumeUsd": 36879168.291452676,
+          "soldVolumeUsd": 36658050.25693303
+        },
+        {
+          "address": "7wXtGayssQRekJYop299FoJZmcD7fvRW6NUwLk3r6VWM",
+          "boughtVolumeUsd": 8235144.327292482,
+          "soldVolumeUsd": 8231664.832329036
+        }
+      ],
+      "sellers": [
+        {
+          "address": "FkaLnX17cXZGyeu3kZGdHCNdFMJJzBrPPYVvd18B3MZp",
+          "boughtVolumeUsd": 43757523.82859601,
+          "soldVolumeUsd": 45213889.42927677
+        },
+        {
+          "address": "8ekCy2jHHUbW2yeNGFWYJT9Hm9FW7SvZcZK66dSZCDiF",
+          "boughtVolumeUsd": 31853404.531378545,
+          "soldVolumeUsd": 32241247.551335957
+        },
+        {
+          "address": "GRV6aYozLxNaH1Yj6T2h2qfEog9ctssas6brwCcbuSK5",
+          "boughtVolumeUsd": 10954648.429433435,
+          "soldVolumeUsd": 11392837.049673006
+        }
+      ]
+    },
+    "earlyExit": null,
+    "daily": []
+  },
+  {
+    "chain": "ethereum",
+    "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    "symbol": "WBTC",
+    "stats": {
+      "volume24hUsd": 120697173.1545485,
+      "marketCapUsd": 9779563809.670376,
+      "liquidityUsd": 216375892.4108139,
+      "totalHolders": 103738,
+      "tokenDeploymentDate": "2018-11-24 21:45:52"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": -5795827.046109803,
+      "freshWalletsNetFlowUsd": 18202068.48348096
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": 737965.1281074784,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "0x9ce970f57157577f7a72436f1a5f2d33ce4b5355",
+          "boughtVolumeUsd": 7464252.580602638,
+          "soldVolumeUsd": 0
+        },
+        {
+          "address": "0x1c36100366f22d9db6ecc7490f264ca2f32867c9",
+          "boughtVolumeUsd": 5396419.258702396,
+          "soldVolumeUsd": 0
+        },
+        {
+          "address": "0xc55181b161d86dd12889416b5a131de8ee8117d8",
+          "boughtVolumeUsd": 3996969.0729654934,
+          "soldVolumeUsd": 0
+        }
+      ],
+      "sellers": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "boughtVolumeUsd": 22180517.137773324,
+          "soldVolumeUsd": 31418544.99157015
+        },
+        {
+          "address": "0xc0358e760dc0eb195a01db44f28ed68a3d1e5f2d",
+          "boughtVolumeUsd": 0,
+          "soldVolumeUsd": 4288241.230271985
+        },
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "boughtVolumeUsd": 1738661.050663328,
+          "soldVolumeUsd": 2723536.827785487
+        }
+      ]
+    },
+    "earlyExit": {
+      "sellers": 10,
+      "earlyBuyers": 2,
+      "overlap": 0,
+      "windowDays": 7,
+      "earlyDays": 10
+    },
+    "daily": []
+  },
+  {
+    "chain": "ethereum",
+    "address": "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+    "symbol": "PEPE",
+    "stats": {
+      "volume24hUsd": 4441807.4414551705,
+      "marketCapUsd": 1857141938.5310004,
+      "liquidityUsd": 17206094.53490967,
+      "totalHolders": 411191,
+      "tokenDeploymentDate": "2023-04-14 14:51:35"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": -91782.75369130298,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": -136867.51224066562,
+      "freshWalletsNetFlowUsd": 707548.3766941406
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": 537215.9836787398,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "0xbdb3ba9ffe392549e1f8658dd2630c141fdf47b6",
+          "boughtVolumeUsd": 112414.94912900543,
+          "soldVolumeUsd": 41880.72204626883
+        },
+        {
+          "address": "0x55d11076d45bc25d89d3dbbf1fbdea068ee6056e",
+          "boughtVolumeUsd": 111748.85483243372,
+          "soldVolumeUsd": 0
+        },
+        {
+          "address": "0xfbeedcfe378866dab6abbafd8b2986f5c1768737",
+          "boughtVolumeUsd": 84163.68020366666,
+          "soldVolumeUsd": 60163.60609022756
+        }
+      ],
+      "sellers": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "boughtVolumeUsd": 817589.3674865856,
+          "soldVolumeUsd": 988079.1283818032
+        },
+        {
+          "address": "0xeff6cb8b614999d130e537751ee99724d01aa167",
+          "boughtVolumeUsd": 0,
+          "soldVolumeUsd": 273129.09312800603
+        },
+        {
+          "address": "0xbee3211ab312a8d065c4fef0247448e17a8da000",
+          "boughtVolumeUsd": 78905.17638059161,
+          "soldVolumeUsd": 152723.03958105537
+        }
+      ]
+    },
+    "earlyExit": {
+      "sellers": 10,
+      "earlyBuyers": 50,
+      "overlap": 0,
+      "windowDays": 7,
+      "earlyDays": 10
+    },
+    "daily": []
+  },
+  {
+    "chain": "ethereum",
+    "address": "0x514910771af9ca656af840dff83e8264ecf986ca",
+    "symbol": "LINK",
+    "stats": {
+      "volume24hUsd": 15946587.28060766,
+      "marketCapUsd": 9208749955.333044,
+      "liquidityUsd": 32622681.549348574,
+      "totalHolders": 639861,
+      "tokenDeploymentDate": "2017-09-16 21:26:29"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": 8484700.399220753,
+      "freshWalletsNetFlowUsd": 3812425.4069618564
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": 2990812.828161426,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "0x66b1c68066a6efc53b4f2c72a7a300976cae47bf",
+          "boughtVolumeUsd": 82243.79540817076,
+          "soldVolumeUsd": 259.773583501998
+        },
+        {
+          "address": "0x6469b1a7c792b459567cf3a7bbc638c9e61476d3",
+          "boughtVolumeUsd": 67256.05801476451,
+          "soldVolumeUsd": 0
+        },
+        {
+          "address": "0x8b118d9134131c52851ca3ba1313de96bb54f808",
+          "boughtVolumeUsd": 56554.794442919876,
+          "soldVolumeUsd": 0
+        }
+      ],
+      "sellers": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "boughtVolumeUsd": 1984954.6768335889,
+          "soldVolumeUsd": 3704016.4689374547
+        },
+        {
+          "address": "0xcc6bf6bf938bdbe1aaa6bc936494b1eee5037c75",
+          "boughtVolumeUsd": 0,
+          "soldVolumeUsd": 1283907.3182109348
+        },
+        {
+          "address": "0xbee3211ab312a8d065c4fef0247448e17a8da000",
+          "boughtVolumeUsd": 81764.40168188454,
+          "soldVolumeUsd": 929366.3579530667
+        }
+      ]
+    },
+    "earlyExit": null,
+    "daily": []
+  },
+  {
+    "chain": "solana",
+    "address": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    "symbol": "BONK",
+    "stats": {
+      "volume24hUsd": 6765881.185098177,
+      "marketCapUsd": 312999367.8737682,
+      "liquidityUsd": 1879741.9631242342,
+      "totalHolders": 236986,
+      "tokenDeploymentDate": "2022-12-08 20:33:32"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": 5863.044177433752,
+      "whaleNetFlowUsd": -70516.46488867085,
+      "publicFigureNetFlowUsd": -1552.2424657710567,
+      "exchangeNetFlowUsd": 489562.730002595,
+      "freshWalletsNetFlowUsd": 983574.3678166877
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": -22523.181113315884,
+      "publicFigureNetFlowUsd": -28.515381410651393,
+      "exchangeNetFlowUsd": -76884.21487031774,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "GJvewfRjqTUPtx6WsBSUnaFbdgXwgXnWfpDyLm65T4YA",
+          "boughtVolumeUsd": 136775.3487336795,
+          "soldVolumeUsd": 128726.76233428164
+        },
+        {
+          "address": "FkaLnX17cXZGyeu3kZGdHCNdFMJJzBrPPYVvd18B3MZp",
+          "boughtVolumeUsd": 132253.34371540445,
+          "soldVolumeUsd": 99273.79919960744
+        },
+        {
+          "address": "CsVdJ8WH8Q9eHSTRpwtwN3TYApm24QnLKYUMNxJ3DaED",
+          "boughtVolumeUsd": 73546.94820736384,
+          "soldVolumeUsd": 68164.27036859638
+        }
+      ],
+      "sellers": [
+        {
+          "address": "EHcege7dok1iYs7SxL2XzDPvhg6XzMVcx2V5SkMUurJP",
+          "boughtVolumeUsd": 937075.8255626084,
+          "soldVolumeUsd": 1117376.741165372
+        },
+        {
+          "address": "8ekCy2jHHUbW2yeNGFWYJT9Hm9FW7SvZcZK66dSZCDiF",
+          "boughtVolumeUsd": 502459.7532009389,
+          "soldVolumeUsd": 560173.0592457361
+        },
+        {
+          "address": "31p1hptjhFo6ZD8oBqkfutNXQKGGPyi7YcEAfsyKW777",
+          "boughtVolumeUsd": 535270.9694875552,
+          "soldVolumeUsd": 554849.935021938
+        }
+      ]
+    },
+    "earlyExit": null,
+    "daily": []
+  },
+  {
+    "chain": "solana",
+    "address": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+    "symbol": "JUP",
+    "stats": {
+      "volume24hUsd": 8977721.947231732,
+      "marketCapUsd": 944588505.3894936,
+      "liquidityUsd": 4237028.067325315,
+      "totalHolders": 501322,
+      "tokenDeploymentDate": "2024-01-25 08:54:23"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": 76.57012420701211,
+      "whaleNetFlowUsd": 514.4215606545768,
+      "publicFigureNetFlowUsd": -13.59204795702792,
+      "exchangeNetFlowUsd": 733623.4689909699,
+      "freshWalletsNetFlowUsd": 731712.1521155343
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": -86.32990225984209,
+      "whaleNetFlowUsd": -554.7066899994743,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": -282188.89476789907,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "FkaLnX17cXZGyeu3kZGdHCNdFMJJzBrPPYVvd18B3MZp",
+          "boughtVolumeUsd": 487663.9733795955,
+          "soldVolumeUsd": 475390.3124940663
+        },
+        {
+          "address": "CsVdJ8WH8Q9eHSTRpwtwN3TYApm24QnLKYUMNxJ3DaED",
+          "boughtVolumeUsd": 413448.44682413485,
+          "soldVolumeUsd": 412320.5129248835
+        },
+        {
+          "address": "7JSrnK6NuemhdV5ZS99frYTEYisT1jCsnf4zo21hixD1",
+          "boughtVolumeUsd": 205036.81608425855,
+          "soldVolumeUsd": 0
+        }
+      ],
+      "sellers": [
+        {
+          "address": "MfDuWeqSHEqTFVYZ7LoexgAK9dxk7cy4DFJWjWMGVWa",
+          "boughtVolumeUsd": 702287.7113269861,
+          "soldVolumeUsd": 1282333.3778542099
+        },
+        {
+          "address": "EHcege7dok1iYs7SxL2XzDPvhg6XzMVcx2V5SkMUurJP",
+          "boughtVolumeUsd": 679417.8557648159,
+          "soldVolumeUsd": 697902.4506958416
+        },
+        {
+          "address": "8ZgAmj7fSo2eTcwidgg4uUYLZRXi8vyeFuywmA8FBQAv",
+          "boughtVolumeUsd": 172410.53165120727,
+          "soldVolumeUsd": 272659.36290651746
+        }
+      ]
+    },
+    "earlyExit": {
+      "sellers": 10,
+      "earlyBuyers": 50,
+      "overlap": 1,
+      "windowDays": 7,
+      "earlyDays": 10
+    },
+    "daily": []
+  },
+  {
+    "chain": "base",
+    "address": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+    "symbol": "AERO",
+    "stats": {
+      "volume24hUsd": 26791066.92823907,
+      "marketCapUsd": 659373065.3393407,
+      "liquidityUsd": 29223206.31855734,
+      "totalHolders": 97142,
+      "tokenDeploymentDate": "2023-08-28 02:40:47"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": -12077.064100052234,
+      "whaleNetFlowUsd": -1385377.387618029,
+      "publicFigureNetFlowUsd": 4218.673551691703,
+      "exchangeNetFlowUsd": 3489932.465311533,
+      "freshWalletsNetFlowUsd": 56641604.6448971
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": -1379894.1557621493,
+      "publicFigureNetFlowUsd": 3551.8189694660978,
+      "exchangeNetFlowUsd": 2143297.7505712006,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+          "boughtVolumeUsd": 7536633.729014356,
+          "soldVolumeUsd": 5482574.136431599
+        },
+        {
+          "address": "0x01989c93890aed05a63d179b03424997075b6acf",
+          "boughtVolumeUsd": 928532.866949025,
+          "soldVolumeUsd": 916103.1145292468
+        },
+        {
+          "address": "0x08fb33543ad633db94282df364ad80feb8d9fc35",
+          "boughtVolumeUsd": 634087.1310865853,
+          "soldVolumeUsd": 610334.7049335174
+        }
+      ],
+      "sellers": [
+        {
+          "address": "0x278d858f05b94576c1e6f73285886876ff6ef8d2",
+          "boughtVolumeUsd": 1491990.8586639268,
+          "soldVolumeUsd": 1509926.2879317221
+        },
+        {
+          "address": "0xa9231b80411c0e18d27edee7786692acd2138fdf",
+          "boughtVolumeUsd": 592961.2632348712,
+          "soldVolumeUsd": 594788.3396882095
+        },
+        {
+          "address": "0x2192bc3b4028acc1113f2cd9ac2cba70c36520db",
+          "boughtVolumeUsd": 420204.03519936063,
+          "soldVolumeUsd": 561007.919094611
+        }
+      ]
+    },
+    "earlyExit": {
+      "sellers": 10,
+      "earlyBuyers": 50,
+      "overlap": 0,
+      "windowDays": 7,
+      "earlyDays": 10
+    },
+    "daily": []
+  },
+  {
+    "chain": "base",
+    "address": "0x532f27101965dd16442e59d40670faf5ebb142e4",
+    "symbol": "BRETT",
+    "stats": {
+      "volume24hUsd": 452059.54647586367,
+      "marketCapUsd": 53317684.00928218,
+      "liquidityUsd": 1193127.275115551,
+      "totalHolders": 112036,
+      "tokenDeploymentDate": "2024-02-24 06:47:51"
+    },
+    "flows1d": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": 3381.760903455928,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "flows1h": {
+      "smartTraderNetFlowUsd": 0,
+      "whaleNetFlowUsd": 0,
+      "publicFigureNetFlowUsd": 0,
+      "exchangeNetFlowUsd": 14999.41220925501,
+      "freshWalletsNetFlowUsd": 0
+    },
+    "traders": {
+      "buyers": [
+        {
+          "address": "0x01989c93890aed05a63d179b03424997075b6acf",
+          "boughtVolumeUsd": 140803.276857294,
+          "soldVolumeUsd": 124043.91906920949
+        },
+        {
+          "address": "0x08fb33543ad633db94282df364ad80feb8d9fc35",
+          "boughtVolumeUsd": 62023.77808755557,
+          "soldVolumeUsd": 60618.860657331934
+        },
+        {
+          "address": "0x2192bc3b4028acc1113f2cd9ac2cba70c36520db",
+          "boughtVolumeUsd": 12755.434292269765,
+          "soldVolumeUsd": 9948.080360679873
+        }
+      ],
+      "sellers": [
+        {
+          "address": "0x8ea5ad2a58c1dae75394b1e8636e6518eb6dac50",
+          "boughtVolumeUsd": 5494.847839164761,
+          "soldVolumeUsd": 23090.033607661346
+        },
+        {
+          "address": "0xb9a99ee4443c3d2b9e26d3065d7fbdd5aa910a73",
+          "boughtVolumeUsd": 5191.733578394369,
+          "soldVolumeUsd": 16528.347304899307
+        },
+        {
+          "address": "0xae629bf1cf17cbdd1b8e9a462519f678d8b40b3f",
+          "boughtVolumeUsd": 2283.123864275244,
+          "soldVolumeUsd": 10825.784872582923
+        }
+      ]
+    },
+    "earlyExit": {
+      "sellers": 10,
+      "earlyBuyers": 50,
+      "overlap": 0,
+      "windowDays": 7,
+      "earlyDays": 10
+    },
+    "daily": []
+  }
+]

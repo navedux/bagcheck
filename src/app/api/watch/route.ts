@@ -2,6 +2,7 @@ import { env } from "@/lib/env";
 import { err, ok } from "@/lib/envelope";
 import { API_HEADERS } from "@/lib/headers";
 import { rejectIfGuarded } from "@/lib/origin";
+import { clientKey } from "@/lib/rate-limit";
 import { resolveCheck } from "@/lib/resolve-check";
 import type { WatchRow } from "@/lib/types";
 import { normalizeAddress, watchBodySchema } from "@/lib/validate";
@@ -27,9 +28,11 @@ export async function POST(request: Request) {
     });
   }
 
+  // Each cold row spends the caller's hourly budget; warm rows are free.
+  const client = clientKey(request);
   const results = await Promise.all(
     parsed.data.items.map((item) =>
-      resolveCheck(item.chain, normalizeAddress(item.address)),
+      resolveCheck(item.chain, normalizeAddress(item.address), undefined, { client }),
     ),
   );
   const rows: WatchRow[] = results.flatMap((result) => {

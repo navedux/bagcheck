@@ -13,8 +13,9 @@ function blank(value: string | undefined): string | undefined {
  */
 export function clampDataMode(
   mode: "snapshot" | "sim" | "live",
-  _onVercel: boolean,
+  onVercel: boolean,
 ): "snapshot" | "sim" | "live" {
+  void onVercel;
   return mode;
 }
 
@@ -38,7 +39,9 @@ const schema = z.object({
     .default("https://api.nansen.ai/api/v1"),
   CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(900),
   RATE_LIMIT_PER_MIN: z.coerce.number().int().positive().default(30),
-  DAILY_CALL_CAP: z.coerce.number().int().positive().default(800),
+  DAILY_CALL_CAP: z.coerce.number().int().positive().default(400),
+  COLD_CHECKS_PER_CLIENT_HOUR: z.coerce.number().int().positive().default(10),
+  COLD_CHECKS_PER_HOUR: z.coerce.number().int().positive().default(60),
   ALLOWED_ORIGINS: z.string().default("http://localhost:3000"),
 });
 
@@ -49,7 +52,9 @@ function loadEnv() {
     NANSEN_BASE_URL: blank(process.env.NANSEN_BASE_URL),
     CACHE_TTL_SECONDS: blank(process.env.CACHE_TTL_SECONDS) ?? 900,
     RATE_LIMIT_PER_MIN: blank(process.env.RATE_LIMIT_PER_MIN) ?? 30,
-    DAILY_CALL_CAP: blank(process.env.DAILY_CALL_CAP) ?? 800,
+    DAILY_CALL_CAP: blank(process.env.DAILY_CALL_CAP) ?? 400,
+    COLD_CHECKS_PER_CLIENT_HOUR: blank(process.env.COLD_CHECKS_PER_CLIENT_HOUR) ?? 10,
+    COLD_CHECKS_PER_HOUR: blank(process.env.COLD_CHECKS_PER_HOUR) ?? 60,
     ALLOWED_ORIGINS: blank(process.env.ALLOWED_ORIGINS),
   });
 

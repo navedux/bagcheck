@@ -24,9 +24,14 @@ export function holdingWindow(entryDate: string, now: Date) {
   };
 }
 
+/**
+ * The 24h who-bought-sold range, floored to the hour. The range is part of
+ * the cache key, so an unrounded clock makes every request a cold call.
+ */
 export function last24hRange(now: Date) {
-  const to = now.toISOString();
-  const from = new Date(now.getTime() - 86_400_000).toISOString();
+  const hour = Math.floor(now.getTime() / 3_600_000) * 3_600_000;
+  const to = new Date(hour).toISOString();
+  const from = new Date(hour - 86_400_000).toISOString();
   return { from, to };
 }
 

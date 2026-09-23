@@ -26,6 +26,9 @@ export function cacheKey(parts: unknown): string {
 export class MemoryCache {
   private readonly store = new Map<string, CacheEntry<unknown>>();
 
+  /** Bounded so a flood of junk keys cannot grow memory without limit. */
+  constructor(private readonly maxEntries = 5_000) {}
+
   get<T>(key: string, now: number): T | undefined {
     const entry = this.store.get(key);
     if (!entry) return undefined;
@@ -37,7 +40,16 @@ export class MemoryCache {
   }
 
   set<T>(key: string, value: T, ttlMs: number, now: number): void {
+    this.store.delete(key);
+    if (this.store.size >= this.maxEntries) {
+      const oldest = this.store.keys().next().value;
+      if (oldest !== undefined) this.store.delete(oldest);
+    }
     this.store.set(key, { value, expiresAt: now + ttlMs });
+  }
+
+  get size(): number {
+    return this.store.size;
   }
 }
 
