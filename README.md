@@ -1,8 +1,8 @@
-# Hold Check
+# Bagcheck
 
-Paste a token. Get one word from the last 24 hours of Nansen cohort flow: **Buy signal**, **Hold signal**, **Sell signal**, **Don't buy signal**, or **Wait**.
+**Who's buying your bag?** Paste a token and Bagcheck tells you, in a couple of words, what the wallets that matter did with it in the last 24 hours: **Looks good**, **Stay away**, **Wait**, **Hold**, or **Time to go**.
 
-Hold Check asks one question: is capital still arriving, or are you the bid someone else is selling into? It reads smart traders, whales, fresh wallets, public figures, and exchanges from the Nansen API, weighs each against the token's own 24h volume, and names the flow state. Add the day you bought and the same read answers for a holder instead of a buyer.
+It answers one question: is anyone still buying, or are you the exit? It pulls smart traders, whales, new wallets, public figures, and exchanges from the Nansen API, sizes each against the token's own daily volume, and names what's happening: Still buying, Cashing out, Retail rush, Mixed, or Quiet. Tell it the day you bought and the same data answers for someone who already holds.
 
 Powered by [Nansen API](https://nansen.ai). Descriptive onchain data, not financial advice.
 
@@ -20,10 +20,10 @@ Open [http://localhost:3000](http://localhost:3000). The default `DATA_MODE=snap
 
 Try:
 
-1. Click **BONK**. Chip **Distribution**, word **Don't buy signal**. Scroll: biggest sellers, and exchanges on the out side of the flow plot.
-2. Pick a buy date. The word becomes **Sell signal**: same read, answered for a holder. (Live mode also re-reads the flows over your holding window.)
-3. **Add to list**, then go home. Your list keeps the word and the date on this device.
-4. Click **WSOL** (Quiet, Wait) and **PEPE** (Retail pump, Wait) for the other states.
+1. Click **BONK**. Tag **Cashing out**, answer **Stay away**. Scroll: the biggest sellers, and exchanges on the out side of the money plot.
+2. Pick a buy date. The answer becomes **Time to go**: same data, answered for a holder. (Live mode also re-reads everything since that day.)
+3. **Add to bags**, then go home. Your bags keep the answer and the date on this device.
+4. Click **WSOL** (Quiet, Wait) and **PEPE** (Retail rush, Wait) for the others.
 
 Pasting a token outside the featured set in snapshot mode shows "Not in this demo". Use live mode for any token.
 
@@ -43,8 +43,8 @@ Restart `pnpm dev`. A cold check makes 7 Nansen calls (12 credits with a buy dat
 
 - **Data:** `tgm/flow-intelligence` (1d and 1h), `tgm/token-information`, `tgm/who-bought-sold`, and `tgm/historical-token-flow-summary` for the buy-date window. No smart-money endpoints, no labels.
 - **Score:** each cohort's net flow as a share of 24h volume. A move counts at 6% of a day's volume.
-- **States, first match wins:** Too thin → Still bid → Distribution → Retail pump → Split → Quiet. Fresh-wallet flow above a full day of volume is treated as transfers, not buying.
-- **Word:** Still bid reads Buy (looking) or Hold (holding). Distribution reads Don't buy or Sell. The rest read Wait, or Hold when you hold.
+- **What's happening, first match wins:** Too small → Still buying → Cashing out → Retail rush → Mixed → Quiet. New-wallet flow above a full day of volume is treated as transfers, not buying.
+- **The answer:** Still buying reads Looks good (thinking of buying) or Hold (already holding). Cashing out reads Stay away or Time to go. Everything else reads Wait, or Hold if you hold. It describes what wallets did; it's not financial advice.
 
 All math is in [`src/lib/verdict.ts`](src/lib/verdict.ts), all sentences in [`src/lib/copy.ts`](src/lib/copy.ts). The full method is on the app's `/about` page.
 

@@ -85,12 +85,12 @@ const LEGACY_PHRASES = [
 ] as const;
 
 const PRODUCT_VERDICT_COPY: Record<Verdict, string> = {
-  "still-bid": "Traders and whales are still adding.",
-  "retail-pump": "Fresh wallets are the bid. Late, not strong.",
-  distribution: "Flow is leaving toward exchanges.",
-  split: "Traders and whales disagree.",
-  quiet: "No meaningful cohort flow.",
-  "too-thin": "Liquidity is below the floor for this method.",
+  "still-bid": "Smart traders and whales are still buying.",
+  "retail-pump": "New wallets are doing all the buying. Nobody big is in.",
+  distribution: "Tokens are heading to exchanges. That's usually someone selling.",
+  split: "Smart traders and whales are pulling opposite ways.",
+  quiet: "Nobody's moving much either way.",
+  "too-thin": "Too little trading to tell anything.",
 };
 
 describe("verdict copy", () => {
@@ -135,19 +135,20 @@ describe("verdict copy", () => {
     expect(copyContainsBannedPhrase(PARTIAL_COVERAGE_LINE)).toBe(false);
   });
 
-  it("tells a first visit they get one signal", () => {
-    expect(HOME_HEAD).toBe("A buy, hold, or sell signal.");
-    expect(HOME_NEXT.toLowerCase()).toContain("signal");
+  it("tells a first visit what they get", () => {
+    expect(HOME_HEAD).toBe("Who's buying your bag?");
+    expect(HOME_NEXT).toContain("Nansen");
+    expect(HOME_NEXT).toContain("24 hours");
     expect(HOME_OR.toLowerCase()).toContain("try");
   });
 
   it("keeps action and toast lines descriptive", () => {
     expect(ACTION_DATE_HINT).toBe(
-      "Turns a buy signal into a hold signal, and don't-buy into a sell signal.",
+      "If you already hold it, the answer is about keeping it, not buying it.",
     );
     expect(ACTION_RULE).toBe("Rule");
     expect(WINDOW_RAIL).toBe(
-      "Holding changes the word, not the read: buy becomes hold, don't-buy becomes sell.",
+      "You hold it, so the answer is about keeping it. Same data, different question.",
     );
     for (const line of [
       HOME_HEAD,
@@ -193,21 +194,21 @@ describe("verdict copy", () => {
   });
 
   it("names empty list, search, flow, traders, and missing pages", () => {
-    expect(WATCH_LIST_EMPTY).toBe("No tokens on your list yet.");
+    expect(WATCH_LIST_EMPTY).toBe("Nothing here yet. Add what you hold, or what you're eyeing.");
     expect(WATCH_ADD_SEARCH).toContain("featured");
-    expect(WATCH_ADD_EMPTY).toContain("token address");
+    expect(WATCH_ADD_EMPTY).toContain("address");
     expect(watchAddListEmpty("", "loading")).toBe(WATCH_ADD_LOAD);
     expect(watchAddListEmpty("", "ok")).toBe(WATCH_ADD_NONE);
     expect(watchAddListEmpty("zzzz", "ok")).toBe(WATCH_ADD_EMPTY);
-    expect(FLOW_EMPTY.toLowerCase()).toContain("flow");
+    expect(FLOW_EMPTY.toLowerCase()).toContain("nothing moved");
     expect(STRIP_EMPTY.toLowerCase()).toContain("30-day");
     expect(TRADERS_EMPTY_BUY.toLowerCase()).toContain("buyers");
     expect(TRADERS_EMPTY_SELL.toLowerCase()).toContain("sellers");
-    expect(missingCopy("address").title).toBe("That is not a token address.");
+    expect(missingCopy("address").title).toBe("That's not a token address.");
     expect(missingCopy("address").reason).toBe(PASTE_ERROR);
     expect(missingCopy("chain").title).toContain("chain");
     expect(missingCopy("snapshot").reason).toContain("featured tokens");
-    expect(missingCopy("not-found").title).toBe("No read for this token.");
+    expect(missingCopy("not-found").title).toBe("Never heard of it.");
   });
 
   it("names auto chain detection without locking a guess", () => {
@@ -226,7 +227,7 @@ describe("verdict copy", () => {
   });
 
   it("marks an empty watch row as not holding", () => {
-    expect(WATCH_UNSET).toBe("Not holding");
+    expect(WATCH_UNSET).toBe("Not holding yet");
     expect(watchStatus(emptyBag)).toBe(WATCH_UNSET);
     expect(watchStatus({ ...emptyBag, entryDate: "2026-08-03" })).toContain("Aug 3");
     expect(
@@ -236,13 +237,17 @@ describe("verdict copy", () => {
 });
 
 describe("signal copy", () => {
-  it("names trade verbs as signals and leaves wait and no read plain", () => {
-    expect(SIGNAL_LABEL.buy).toBe("Buy signal");
-    expect(SIGNAL_LABEL.hold).toBe("Hold signal");
-    expect(SIGNAL_LABEL.sell).toBe("Sell signal");
-    expect(SIGNAL_LABEL["dont-buy"]).toBe("Don't buy signal");
+  it("answers in a couple of plain words", () => {
+    expect(SIGNAL_LABEL.buy).toBe("Looks good");
+    expect(SIGNAL_LABEL.hold).toBe("Hold");
+    expect(SIGNAL_LABEL.sell).toBe("Time to go");
+    expect(SIGNAL_LABEL["dont-buy"]).toBe("Stay away");
     expect(SIGNAL_LABEL.wait).toBe("Wait");
-    expect(SIGNAL_LABEL["no-read"]).toBe("No read");
+    expect(SIGNAL_LABEL["no-read"]).toBe("Can't tell");
+    for (const label of Object.values(SIGNAL_LABEL)) {
+      expect(copyContainsBannedPhrase(label)).toBe(false);
+      expect(label.split(" ").length).toBeLessThanOrEqual(3);
+    }
   });
 
   it("allows signal nouns and still flags orders", () => {
@@ -255,7 +260,7 @@ describe("signal copy", () => {
 
   it("frames holding without watcher/holder labels", () => {
     expect(holdingLine("2026-08-03")).toBe("Holding since Aug 3.");
-    expect(SIGNAL_FORK_HINT.toLowerCase()).toContain("holding this");
+    expect(SIGNAL_FORK_HINT.toLowerCase()).toContain("already holding");
     expect(copyContainsBannedPhrase(holdingLine("2026-08-03"))).toBe(false);
   });
 
@@ -272,9 +277,9 @@ describe("signal copy", () => {
   });
 
   it("names the 24h in/out bridge without orders", () => {
-    expect(FLOW_HEAD).toBe("In and out, 24h");
+    expect(FLOW_HEAD).toBe("Where the money went today");
     expect(flowNetLine("+$540k", "+9.0%")).toBe(
-      "Net +$540k. +9.0% of 24h volume.",
+      "Net +$540k, +9.0% of the day's volume.",
     );
     expect(copyContainsBannedPhrase(FLOW_CAPTION)).toBe(false);
     expect(copyContainsBannedPhrase(flowNetLine("+$540k", "+9.0%"))).toBe(false);
@@ -283,14 +288,14 @@ describe("signal copy", () => {
 
 describe("stability lines", () => {
   it("reads unchanged, new-today, and aged runs", () => {
-    expect(stabilityLine(30, 0, 30)).toBe("Unchanged for 30 days.");
-    expect(stabilityLine(1, 3, 30)).toBe("New read today. Third flip in 30 days.");
-    expect(stabilityLine(6, 2, 30)).toBe("This read is 6 days old. Second flip in 30 days.");
+    expect(stabilityLine(30, 0, 30)).toBe("Same story for 30 days.");
+    expect(stabilityLine(1, 3, 30)).toBe("Changed today. Third change in 30 days.");
+    expect(stabilityLine(6, 2, 30)).toBe("Same for 6 days. Second change in 30 days.");
     expect(stabilityLine(0, 0, 30)).toBe("");
   });
 
   it("falls back to numeric ordinals past ten", () => {
-    expect(stabilityLine(1, 12, 30)).toBe("New read today. 12th flip in 30 days.");
+    expect(stabilityLine(1, 12, 30)).toBe("Changed today. 12th change in 30 days.");
   });
 
   it("stays descriptive", () => {
@@ -308,14 +313,12 @@ describe("early-exit lines", () => {
   });
 
   it("reads zero, one and many overlaps", () => {
-    expect(earlyExitLine(ee(0))).toBe(
-      "None of the top 10 sellers this week were early buyers.",
-    );
+    expect(earlyExitLine(ee(0))).toBe("None of this week's 10 biggest sellers got in early.");
     expect(earlyExitLine(ee(1))).toBe(
-      "1 of the top 10 sellers this week bought in the token's first 10 days.",
+      "1 of this week's 10 biggest sellers got in during the first 10 days.",
     );
     expect(earlyExitLine(ee(4))).toBe(
-      "4 of the top 10 sellers this week bought in the token's first 10 days.",
+      "4 of this week's 10 biggest sellers got in during the first 10 days. Early money is leaving.",
     );
   });
 

@@ -25,33 +25,33 @@ export const BANNED_PHRASES = [
 ] as const;
 
 export const VERDICT_COPY: Record<Verdict, string> = {
-  "still-bid": "Traders and whales are still adding.",
-  "retail-pump": "Fresh wallets are the bid. Late, not strong.",
-  distribution: "Flow is leaving toward exchanges.",
-  split: "Traders and whales disagree.",
-  quiet: "No meaningful cohort flow.",
-  "too-thin": "Liquidity is below the floor for this method.",
+  "still-bid": "Smart traders and whales are still buying.",
+  "retail-pump": "New wallets are doing all the buying. Nobody big is in.",
+  distribution: "Tokens are heading to exchanges. That's usually someone selling.",
+  split: "Smart traders and whales are pulling opposite ways.",
+  quiet: "Nobody's moving much either way.",
+  "too-thin": "Too little trading to tell anything.",
 };
 
 export const SIGNAL_LABEL: Record<Signal, string> = {
-  buy: "Buy signal",
-  hold: "Hold signal",
-  sell: "Sell signal",
-  "dont-buy": "Don't buy signal",
+  buy: "Looks good",
+  hold: "Hold",
+  sell: "Time to go",
+  "dont-buy": "Stay away",
   wait: "Wait",
-  "no-read": "No read",
+  "no-read": "Can't tell",
 };
 
-export const SIGNAL_FORK_HINT = "Holding this? Add the day you bought.";
+export const SIGNAL_FORK_HINT = "Already holding? Add the day you bought.";
 export const RULE_ECHO = "Your rule: sell.";
 
 export const VERDICT_LABEL: Record<Verdict, string> = {
-  "still-bid": "Still bid",
-  "retail-pump": "Retail pump",
-  distribution: "Distribution",
-  split: "Split",
+  "still-bid": "Still buying",
+  "retail-pump": "Retail rush",
+  distribution: "Cashing out",
+  split: "Mixed",
   quiet: "Quiet",
-  "too-thin": "Too thin",
+  "too-thin": "Too small",
 };
 
 /** Single-cell marks for the 30-day signal strip. */
@@ -84,54 +84,56 @@ export const MODE_CREDIT: Record<"live" | "sim" | "snapshot", string> = {
 };
 
 export const PARTIAL_COVERAGE_LINE =
-  "Whale, public figure, and exchange labels start 11 Mar 2025. This window only uses covered cohorts.";
+  "Nansen's whale and exchange tags start on 11 Mar 2025, so this window only counts what was tagged.";
 
-export const TRADERS_CAPTION = "Top wallets by net DEX volume. Addresses only, no labels.";
-export const TRADERS_EMPTY_BUY = "No buyers in this window.";
-export const TRADERS_EMPTY_SELL = "No sellers in this window.";
-export const FLOW_EMPTY = "No cohort flow to plot.";
+export const TRADERS_HEAD = "Biggest buyers and sellers today";
+export const TRADERS_CAPTION = "Top wallets by DEX volume in the last 24 hours.";
+export const TRADERS_EMPTY_BUY = "No big buyers today.";
+export const TRADERS_EMPTY_SELL = "No big sellers today.";
+export const FLOW_EMPTY = "Nothing moved enough to draw.";
 export const STRIP_EMPTY = "No 30-day field yet.";
 
 export const EMPTY_SNAPSHOT_HEAD = "Not in this demo.";
 export const EMPTY_SNAPSHOT_LINE =
-  "This demo has saved reads for the featured tokens only. Run it locally with a Nansen key to check any token.";
+  "This demo only has the featured tokens saved. Run it with a Nansen key to check anything.";
 
-export const RATE_LIMIT_HEAD = "Too many checks.";
-export const RATE_LIMIT_LINE = "Wait a minute, then try again.";
+export const RATE_LIMIT_HEAD = "Easy there.";
+export const RATE_LIMIT_LINE = "Give it a minute, then try again.";
 
 export const MISSING_CHAIN_HEAD = "That chain is not supported.";
-export const MISSING_CHAIN_LINE = "Hold Check reads Solana, Ethereum, and Base.";
-export const MISSING_ADDRESS_HEAD = "That is not a token address.";
-export const MISSING_TOKEN_HEAD = "No read for this token.";
-export const MISSING_LIVE_HEAD = "Could not read this token.";
-export const BUSY_HEAD = "Hourly limit reached.";
+export const MISSING_CHAIN_LINE = "Bagcheck reads Solana, Ethereum, and Base.";
+export const MISSING_ADDRESS_HEAD = "That's not a token address.";
+export const MISSING_TOKEN_HEAD = "Never heard of it.";
+export const MISSING_LIVE_HEAD = "Couldn't check that one.";
+export const BUSY_HEAD = "Slow down a little.";
 export const LIVE_NOT_FOUND =
-  "Nansen has no flow data for this token on this chain. Check the chain, or try another token.";
+  "Nansen has nothing on this token on this chain. Double-check the chain, or try another one.";
 export const LIVE_AUTH = "Nansen did not accept the request. Try again later.";
-export const LIVE_UNAVAILABLE = "Nansen is not responding right now. Try again in a minute.";
+export const LIVE_UNAVAILABLE = "Nansen isn't answering right now. Try again in a minute.";
 export const LIVE_BUSY =
-  "Too many new tokens from your network this hour. Try a featured token, or come back later.";
+  "You've checked a lot of new tokens this hour. The featured ones still work, or come back in a bit.";
 
 export const STALE_REASON =
-  "Live read unavailable. Showing the last saved read.";
+  "Couldn't reach Nansen, so this is the last saved read.";
 
-export const HOME_EYEBROW = "One token. One signal.";
-export const HOME_HEAD = "A buy, hold, or sell signal.";
+export const HOME_EYEBROW = "Before you buy. While you hold.";
+export const HOME_HEAD = "Who's buying your bag?";
 export const HOME_NEXT =
-  "Paste a token address. One signal from 24 hours of Nansen cohort flow: traders, whales, fresh wallets, exchanges.";
-export const HOME_OR = "Or try one of these";
-export const HOME_AGAIN = "Check another token";
-export const PASTE_PLACEHOLDER = "Token address";
-export const PASTE_ERROR = "Paste a token address on Solana, Ethereum, or Base.";
+  "Paste a token. We check who bought and sold it on Nansen in the last 24 hours (whales, smart traders, new wallets, exchanges) and tell you straight.";
+export const HOME_OR = "Or try one";
+export const HOME_AGAIN = "Check another bag";
+export const PASTE_PLACEHOLDER = "Paste a token address";
+export const PASTE_SUBMIT = "Check";
+export const PASTE_ERROR = "Paste a token address from Solana, Ethereum, or Base.";
 export const PASTE_EMPTY = "Paste a token address.";
 export const PASTE_INCOMPLETE = "That address is incomplete.";
-export const PASTE_INVALID = "That is not a token address.";
+export const PASTE_INVALID = "That's not a token address.";
 export const PASTE_TOO_LONG = "That address is too long.";
 export const PASTE_NEED_0X = "Ethereum and Base addresses start with 0x.";
-export const PASTE_CHAIN_EVM = "That token address is for Ethereum or Base. Switch the chain.";
-export const PASTE_CHAIN_SOL = "That token address is for Solana. Switch the chain.";
+export const PASTE_CHAIN_EVM = "That's an Ethereum or Base address. Switch the chain.";
+export const PASTE_CHAIN_SOL = "That's a Solana address. Switch the chain.";
 export const PASTE_PENDING = "Checking";
-export const CHECK_LOADING = "Reading 24h cohort flow from Nansen.";
+export const CHECK_LOADING = "Asking Nansen who's been buying and selling…";
 export const CHAIN_AUTO = "Auto";
 export const CHAIN_MENU = "Chain";
 export const CHAIN_AUTO_HINT = "Read from the token address.";
@@ -196,26 +198,26 @@ export function missingCopy(kind: MissingKind): { title: string; reason: string 
   return { title: EMPTY_SNAPSHOT_HEAD, reason: EMPTY_SNAPSHOT_LINE };
 }
 
-export const WATCH_HEAD = "Your list";
-export const WATCH_READING = "Reading…";
-export const WATCH_LIST_EMPTY = "No tokens on your list yet.";
+export const WATCH_HEAD = "Your bags";
+export const WATCH_READING = "Checking…";
+export const WATCH_LIST_EMPTY = "Nothing here yet. Add what you hold, or what you're eyeing.";
 export const WATCH_ADD = "Add tokens";
-export const WATCH_ADD_TITLE = "Add to your list";
+export const WATCH_ADD_TITLE = "Add to your bags";
 export const WATCH_ADD_SEARCH = "Search featured tokens or paste";
-export const WATCH_ADD_EMPTY = "No tokens match that search. Paste a token address below.";
+export const WATCH_ADD_EMPTY = "Nothing matches. Paste the address below instead.";
 export const WATCH_ADD_NONE = "Paste a token address below.";
-export const WATCH_ADD_LOAD = "Reading tokens.";
-export const WATCH_ADD_FAIL = "Showing the featured set. Live catalog did not load.";
-export const WATCH_ADD_ON = "On your list";
-export const WATCH_PIN = "Add to list";
-export const WATCH_REMOVE = "Remove from your list";
+export const WATCH_ADD_LOAD = "Loading tokens…";
+export const WATCH_ADD_FAIL = "Showing the featured tokens for now.";
+export const WATCH_ADD_ON = "In your bags";
+export const WATCH_PIN = "Add to bags";
+export const WATCH_REMOVE = "Remove from your bags";
 export const WATCH_REMOVE_SHORT = "Remove";
 export const WATCH_ADD_ACTION = "Add";
-export const WATCH_ADD_FULL = "Your list is full. Remove one to add another.";
+export const WATCH_ADD_FULL = "That's 20. Remove one to add another.";
 export const WATCH_ADD_PASTE = "Or paste a token address";
 export const WATCH_ADD_CLOSE = "Close";
 export const WATCH_ADD_RETRY = "Try again";
-export const WATCH_LIST_FAIL = "Could not refresh your list. Open a row to read it.";
+export const WATCH_LIST_FAIL = "Couldn't refresh your bags. Open one to check it.";
 
 export function watchAddListEmpty(
   query: string,
@@ -227,26 +229,26 @@ export function watchAddListEmpty(
 }
 
 export const COL_STRIP = "30 days";
-export const COL_SIGNAL = "Signal";
+export const COL_SIGNAL = "Right now";
 export const COL_SHIFT = "Shift";
 export const BOARD_HEAD = "Today";
 export const BOARD_CAPTION = "Open a row. Ranked by flow shift as a share of 24h volume.";
 
 export function flipSinceVisitLine(from: Verdict): string {
-  return `Was ${VERDICT_LABEL[from]} on your last visit.`;
+  return `Was ${VERDICT_LABEL[from].toLowerCase()} last time you looked.`;
 }
 
 export function flipRecentLine(days: number): string {
-  if (days <= 0) return "Flipped today.";
-  if (days === 1) return "Flipped yesterday.";
-  return `Flipped ${days}d ago.`;
+  if (days <= 0) return "Changed today.";
+  if (days === 1) return "Changed yesterday.";
+  return `Changed ${days}d ago.`;
 }
 
 export const ACTION_HEAD = "On this token";
 export const ACTION_DATE = "Bought on";
 export const ACTION_DATE_HINT =
-  "Turns a buy signal into a hold signal, and don't-buy into a sell signal.";
-export const ACTION_DATE_EMPTY = "Not holding";
+  "If you already hold it, the answer is about keeping it, not buying it.";
+export const ACTION_DATE_EMPTY = "Not holding yet";
 export const ACTION_DATE_CLEAR = "Clear";
 export const ACTION_DATE_PREV = "Previous month";
 export const ACTION_DATE_NEXT = "Next month";
@@ -271,41 +273,46 @@ export function formatMonthYear(year: number, monthIndex: number): string {
   return month ? `${month} ${year}` : `${year}`;
 }
 export const ACTION_RULE = "Rule";
-export const ACTION_FOLLOW = "Home list";
-export const ACTION_FOLLOW_ON = "Pinned";
-export const ACTION_FOLLOW_OFF = "Not pinned";
+export const ACTION_FOLLOW = "Your bags";
+export const ACTION_FOLLOW_ON = "In your bags";
+export const ACTION_FOLLOW_OFF = "Not in your bags";
 export const ACTION_NOTES = "Size and cost";
-export const ACTION_NOTES_HINT = "Stored on this device. They do not change the signal.";
+export const ACTION_NOTES_HINT = "Only saved on this device. They don't change the answer.";
 export const ACTION_COPY = "Copy link";
 export const WINDOW_RAIL =
-  "Holding changes the word, not the read: buy becomes hold, don't-buy becomes sell.";
+  "You hold it, so the answer is about keeping it. Same data, different question.";
 export const CLOCK_24H = "Last 24 hours.";
-export const SCORE_MARK = "Net flow as a share of 24h volume. The tick is the 6% line.";
+export const SCORE_MARK = "Net buying or selling as a share of the day's volume. Past the tick (6%) it counts.";
+export const SCORE_LABELS = {
+  bid: "Big buyers",
+  retail: "New wallets",
+  dist: "Exchanges",
+} as const;
 export const COL_SINCE = "Since you bought";
-export const FLOW_HEAD = "In and out, 24h";
+export const FLOW_HEAD = "Where the money went today";
 export const FLOW_IN = "In";
 export const FLOW_OUT = "Out";
 export const FLOW_NET = "Net";
-export const FLOW_CAPTION = "Cohort net flow as a share of 24h volume.";
+export const FLOW_CAPTION = "Net buying and selling by group, as a share of the day's volume.";
 export const FLOW_LABEL: Record<FlowCohort, string> = {
-  traders: "Traders",
+  traders: "Smart traders",
   whales: "Whales",
-  fresh: "Fresh",
-  figures: "Figures",
+  fresh: "New wallets",
+  figures: "Public figures",
   exchanges: "Exchanges",
 };
 
 export function flowNetLine(signedUsd: string, signedPct: string): string {
-  return `Net ${signedUsd}. ${signedPct} of 24h volume.`;
+  return `Net ${signedUsd}, ${signedPct} of the day's volume.`;
 }
 
-export const TOAST_DATE = "Holding window set.";
-export const TOAST_DATE_CLEARED = "Holding window cleared.";
+export const TOAST_DATE = "Buy date saved.";
+export const TOAST_DATE_CLEARED = "Buy date cleared.";
 export const TOAST_RULE = "Rule saved on this device.";
-export const TOAST_FOLLOW = "Pinned on home.";
-export const TOAST_UNFOLLOW = "Removed from home.";
-export const TOAST_FOLLOW_FULL = "List is full. Twenty tokens is the cap.";
-export const TOAST_FOLLOW_FAIL = "Could not save on this device.";
+export const TOAST_FOLLOW = "Added to your bags.";
+export const TOAST_UNFOLLOW = "Removed from your bags.";
+export const TOAST_FOLLOW_FULL = "That's 20 bags. Remove one first.";
+export const TOAST_FOLLOW_FAIL = "Couldn't save on this device.";
 export const TOAST_COPIED = "Link copied.";
 
 export const WATCH_UNSET = ACTION_DATE_EMPTY;
@@ -356,12 +363,12 @@ export function stabilityLine(
 ): string {
   if (runDays <= 0) return "";
   if (flips === 0) {
-    return `Unchanged for ${Math.min(runDays, windowDays)} days.`;
+    return `Same story for ${Math.min(runDays, windowDays)} days.`;
   }
   if (runDays === 1) {
-    return `New read today. ${ordinalWord(flips)} flip in ${windowDays} days.`;
+    return `Changed today. ${ordinalWord(flips)} change in ${windowDays} days.`;
   }
-  return `This read is ${runDays} days old. ${ordinalWord(flips)} flip in ${windowDays} days.`;
+  return `Same for ${runDays} days. ${ordinalWord(flips)} change in ${windowDays} days.`;
 }
 
 /**
@@ -371,12 +378,12 @@ export function stabilityLine(
 export function earlyExitLine(earlyExit: EarlyExit): string {
   const { overlap, sellers, earlyDays } = earlyExit;
   if (overlap === 0) {
-    return `None of the top ${sellers} sellers this week were early buyers.`;
+    return `None of this week's ${sellers} biggest sellers got in early.`;
   }
   if (overlap === 1) {
-    return `1 of the top ${sellers} sellers this week bought in the token's first ${earlyDays} days.`;
+    return `1 of this week's ${sellers} biggest sellers got in during the first ${earlyDays} days.`;
   }
-  return `${overlap} of the top ${sellers} sellers this week bought in the token's first ${earlyDays} days.`;
+  return `${overlap} of this week's ${sellers} biggest sellers got in during the first ${earlyDays} days. Early money is leaving.`;
 }
 
 export function formatEntryDay(isoDate: string): string {
@@ -399,23 +406,23 @@ export function sinceYouBoughtLine(
     if (breakdown.ex > 0 && added > 0) {
       const ratio = breakdown.ex / added;
       const shown = ratio >= 10 ? ratio.toFixed(0) : ratio.toFixed(1);
-      return `Since you bought on ${when}, exchanges took in ${shown}x more than traders added.`;
+      return `Since you bought on ${when}, ${shown}x more went to exchanges than smart traders bought.`;
     }
-    return `Since you bought on ${when}, flow has been leaving toward exchanges.`;
+    return `Since you bought on ${when}, tokens have been heading to exchanges.`;
   }
   if (verdict === "still-bid") {
-    return `Since you bought on ${when}, cohorts have still been adding.`;
+    return `Since you bought on ${when}, the big buyers have kept buying.`;
   }
   if (verdict === "retail-pump") {
-    return `Since you bought on ${when}, fresh wallets have been the bid.`;
+    return `Since you bought on ${when}, new wallets have done most of the buying.`;
   }
   if (verdict === "split") {
-    return `Since you bought on ${when}, traders and whales have disagreed.`;
+    return `Since you bought on ${when}, smart traders and whales have pulled opposite ways.`;
   }
   if (verdict === "too-thin") {
-    return `Since you bought on ${when}, the window is still too thin to read.`;
+    return `Since you bought on ${when}, too little has traded to tell.`;
   }
-  return `Since you bought on ${when}, cohort flow has been quiet.`;
+  return `Since you bought on ${when}, not much has moved.`;
 }
 
 export function watchStatus(ticket: BagTicket): string {
@@ -426,6 +433,6 @@ export function hourTick(stats: TokenStats, flows: CohortFlows): string {
   const { ref } = sizeReference(stats);
   const net = (3 * flows.smartTraderNetFlowUsd + 1.5 * flows.whaleNetFlowUsd) / ref;
   if (Math.abs(net) < 0.01) return "Last hour: quiet.";
-  if (net > 0) return "Last hour: cohorts adding.";
-  return "Last hour: cohorts leaving.";
+  if (net > 0) return "Last hour: big buyers adding.";
+  return "Last hour: big buyers leaving.";
 }

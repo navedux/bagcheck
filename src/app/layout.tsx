@@ -21,8 +21,8 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hold Check",
-  description: "Is capital still arriving, or are you the bid?",
+  title: "Bagcheck",
+  description: "Who's buying your bag? Paste a token and see who bought and sold it in the last 24 hours, from Nansen.",
 };
 
 export default function RootLayout({

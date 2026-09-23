@@ -93,12 +93,10 @@ describe("pasteIssueFor", () => {
 
 describe("pasteLine", () => {
   it("names the mismatch instead of a generic paste error", () => {
-    expect(pasteLine("chain-evm")).toBe(
-      "That token address is for Ethereum or Base. Switch the chain.",
-    );
-    expect(pasteLine("chain-solana")).toBe("That token address is for Solana. Switch the chain.");
+    expect(pasteLine("chain-evm")).toBe("That's an Ethereum or Base address. Switch the chain.");
+    expect(pasteLine("chain-solana")).toBe("That's a Solana address. Switch the chain.");
     expect(pasteLine("need-0x")).toBe("Ethereum and Base addresses start with 0x.");
-    expect(pasteLine("invalid")).toBe("That is not a token address.");
+    expect(pasteLine("invalid")).toBe("That's not a token address.");
     expect(pasteLine("incomplete")).toBe("That address is incomplete.");
     expect(pasteLine("empty")).toBe("Paste a token address.");
     expect(pasteLine("too-long")).toBe("That address is too long.");

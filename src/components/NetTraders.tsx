@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { TRADERS_CAPTION, TRADERS_EMPTY_BUY, TRADERS_EMPTY_SELL } from "@/lib/copy";
+import { TRADERS_CAPTION, TRADERS_EMPTY_BUY, TRADERS_EMPTY_SELL, TRADERS_HEAD } from "@/lib/copy";
 import { formatUsd, truncateAddress } from "@/lib/format";
 import type { TraderPrint, TraderSides, Verdict } from "@/lib/types";
 
@@ -20,7 +20,7 @@ export function NetTraders({
 
   return (
     <section className="border-ticks border-t border-[var(--line)] pt-10">
-      <h2 className="section">Biggest net buyers and sellers, 24h</h2>
+      <h2 className="section">{TRADERS_HEAD}</h2>
       <div className="mt-5 grid grid-cols-1 gap-10 sm:grid-cols-2">
         <Column title="Buyers" tone="in" rows={traders.buyers} field="bought" peak={peak} />
         <Column title="Sellers" tone="out" rows={traders.sellers} field="sold" peak={peak} />

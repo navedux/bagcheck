@@ -57,7 +57,7 @@ export function SignalHead({
 }
 
 export function SignalWhy({ verdict }: { verdict: Verdict }) {
-  return <p className="max-w-[36ch] text-[15px]">{reasonFor(verdict)}</p>;
+  return <p className="max-w-[44ch] text-[15px] [text-wrap:pretty]">{reasonFor(verdict)}</p>;
 }
 
 export function VerdictChip({

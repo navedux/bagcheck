@@ -6,6 +6,7 @@ import { ChainPicker } from "@/components/ChainPicker";
 import { type ChainChoice } from "@/lib/types";
 import {
   PASTE_PENDING,
+  PASTE_SUBMIT,
   PASTE_PLACEHOLDER,
   pasteAutoLine,
   pasteLine,
@@ -79,7 +80,7 @@ export function TokenPaste({ autoFocus = true }: { autoFocus?: boolean }) {
           disabled={pending || (Boolean(address.trim()) && issue !== "ok")}
           aria-busy={pending}
         >
-          {pending ? PASTE_PENDING : "Check hold"}
+          {pending ? PASTE_PENDING : PASTE_SUBMIT}
           <i aria-hidden="true" className="ri-arrow-right-s-line text-[15px]" />
         </button>
       </div>

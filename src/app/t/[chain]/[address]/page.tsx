@@ -88,7 +88,7 @@ function Missing({
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 pt-10 pb-6">
       <p className="caption">
-        Hold Check · <span className="font-mono">{tokenLabel}</span>
+        Bagcheck · <span className="font-mono">{tokenLabel}</span>
       </p>
       <h1 className="display mt-4 max-w-[12ch]">{copy.title}</h1>
       <p className="caption mt-4 max-w-md">{reason ?? copy.reason}</p>

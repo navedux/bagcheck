@@ -1,13 +1,13 @@
 import type { CSSProperties } from "react";
-import { SCORE_MARK } from "@/lib/copy";
+import { SCORE_LABELS, SCORE_MARK } from "@/lib/copy";
 import { formatPctOfVol } from "@/lib/format";
 import type { ScoreBreakdown } from "@/lib/types";
 import { T } from "@/lib/verdict";
 
 const TERMS = [
-  { key: "bid", label: "Bid", pos: "var(--in)", neg: "var(--out)" },
-  { key: "retail", label: "Retail", pos: "var(--p-yellow)", neg: "var(--faint)" },
-  { key: "dist", label: "Dist", pos: "var(--out)", neg: "var(--in)" },
+  { key: "bid", label: SCORE_LABELS.bid, pos: "var(--in)", neg: "var(--out)" },
+  { key: "retail", label: SCORE_LABELS.retail, pos: "var(--p-yellow)", neg: "var(--faint)" },
+  { key: "dist", label: SCORE_LABELS.dist, pos: "var(--out)", neg: "var(--in)" },
 ] as const;
 
 export function ScoreMeters({

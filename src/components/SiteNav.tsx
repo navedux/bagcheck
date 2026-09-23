@@ -25,7 +25,7 @@ export function SiteNav() {
       <div className="site-nav-bar">
         <Link href="/" className="site-brand" aria-current={home ? "page" : undefined}>
           <BrandMark />
-          Hold Check
+          Bagcheck
         </Link>
         <nav aria-label="Site">
           <Link href="/about" className="site-link" aria-current={about ? "page" : undefined}>
