@@ -125,7 +125,7 @@ export const flowRowSchema = z
 export const flowResponseSchema = z
   .object({
     data: z.array(flowRowSchema),
-    warnings: z.array(z.string()).optional(),
+    warnings: z.array(z.string()).nullable().optional(),
   })
   .passthrough();
 
@@ -136,7 +136,7 @@ export const historicalRowSchema = flowRowSchema.extend({
 export const historicalResponseSchema = z
   .object({
     data: z.array(historicalRowSchema),
-    warnings: z.array(z.string()).optional(),
+    warnings: z.array(z.string()).nullable().optional(),
   })
   .passthrough();
 

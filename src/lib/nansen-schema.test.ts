@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   FORBIDDEN_PATH_PREFIXES,
   HISTORICAL_PATH,
+  flowResponseSchema,
   flowsFromRow,
+  historicalResponseSchema,
   historicalFlowsFromRow,
   isAllowedPath,
   isForbiddenPath,
@@ -124,5 +126,51 @@ describe("nansen schema", () => {
     });
     expect(parsed.data.symbol).toBe("PEPE");
     expect("socials" in parsed.data).toBe(true);
+  });
+});
+
+describe("historical flow summary (live shape, Sep 26)", () => {
+  // Verbatim field set from a live v1beta1 response. `warnings` comes back
+  // as null, which the schema rejected until Sep 26, silently dropping every
+  // since-you-bought read in live mode.
+  const live = {
+    data: [
+      {
+        token_symbol: "PEPE",
+        public_figure_net_flow_usd: 2521.2316910379495,
+        public_figure_avg_flow_usd: 2518.8522843373757,
+        public_figure_wallet_count: 13,
+        top_pnl_net_flow_usd: -5644691.783393007,
+        top_pnl_avg_flow_usd: 984495.6994909692,
+        top_pnl_wallet_count: 75,
+        whale_net_flow_usd: 0,
+        whale_avg_flow_usd: null,
+        whale_wallet_count: 0,
+        exchange_net_flow_usd: -1569749.1853852198,
+        exchange_avg_flow_usd: 551238.3078808583,
+        exchange_wallet_count: null,
+        smart_trader_net_flow_usd: 185144.35307775167,
+        smart_trader_avg_flow_usd: 61335.92476985351,
+        smart_trader_wallet_count: 60,
+        fresh_wallets_net_flow_usd: 546825.2896611756,
+        fresh_wallets_avg_flow_usd: 1215904.954603237,
+        fresh_wallets_wallet_count: null,
+      },
+    ],
+    warnings: null,
+  };
+
+  it("parses with null warnings and maps the cohorts", () => {
+    const parsed = historicalResponseSchema.safeParse(live);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    const flows = historicalFlowsFromRow(parsed.data.data[0], false);
+    expect(flows.smartTraderNetFlowUsd).toBeCloseTo(185144.35, 1);
+    expect(flows.exchangeNetFlowUsd).toBeCloseTo(-1569749.19, 1);
+    expect(flows.freshWalletsNetFlowUsd).toBeCloseTo(546825.29, 1);
+  });
+
+  it("accepts null warnings on the 24h flow response too", () => {
+    expect(flowResponseSchema.safeParse({ data: [live.data[0]], warnings: null }).success).toBe(true);
   });
 });
