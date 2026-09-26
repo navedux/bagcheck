@@ -30,7 +30,7 @@ import {
 import { LABEL_COVERAGE_START, MAX_HOLD_DAYS } from "./window";
 
 const llms = readFileSync(path.resolve(__dirname, "../../public/llms.txt"), "utf8");
-const EM_DASH = "—";
+const EM_DASH = String.fromCharCode(0x2014);
 const VERDICTS: Verdict[] = ["still-bid", "retail-pump", "distribution", "split", "quiet", "too-thin"];
 
 const usd = (value: number) => `$${value.toLocaleString("en-US")}`;
