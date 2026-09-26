@@ -14,7 +14,8 @@
     "refresh-live-snapshot": "REFRESH_LIVE=1 vitest run src/lib/live-snapshot.test.ts",
     "refresh-sample-wallet": "REFRESH_WALLET=1 vitest run src/lib/wallet-snapshot.test.ts",
     "export-ledger": "node scripts/export-ledger.mjs",
-    "warmup": "node scripts/warmup.mjs"
+    "warmup": "node scripts/warmup.mjs",
+    "demo-check": "node scripts/demo-check.mjs"
   },
   "dependencies": {
     "next": "16.3.5",

@@ -82,6 +82,7 @@ pnpm refresh-live-snapshot  # recapture data/snapshot/live.json (key in .env.loc
 pnpm refresh-sample-wallet  # recapture data/snapshot/wallet.json (~11 credits)
 pnpm export-ledger          # summarize your local call log (data/call-log.json)
 pnpm warmup                 # one live check per featured token, local only
+pnpm demo-check             # live answers for the featured tokens and sample wallet, warms the cache
 ```
 
 ## Layout

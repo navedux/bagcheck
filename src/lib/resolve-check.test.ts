@@ -381,3 +381,62 @@ describe("wallet resolver", () => {
     expect(result.error.code).toBe("not_in_snapshot");
   });
 });
+
+describe("live mode never passes saved reads off as live", () => {
+  it("calls Nansen for a featured list row even though a snapshot exists", async () => {
+    let calls = 0;
+    const PEPE = "0x6982508145454ce325ddbe47a25d4ec3d2311933";
+    const r = createResolver({
+      mode: () => "live",
+      getSnapshot: () => ({
+        chain: "ethereum",
+        address: PEPE,
+        symbol: "PEPE",
+        stats: liquid,
+        flows1d: stillBidFlows,
+        flows1h: null,
+        traders: { buyers: [], sellers: [] },
+        earlyExit: null,
+        daily: [],
+      }),
+      flowIntelligence: async () => {
+        calls += 1;
+        return ok({ ...stillBidFlows, smartTraderNetFlowUsd: 0, whaleNetFlowUsd: 0, exchangeNetFlowUsd: 900_000 });
+      },
+      tokenInformation: async () => ok({ symbol: "PEPE", stats: liquid }),
+      whoBoughtSold: async () => ok([]),
+      historicalFlowSummary: async () => ok(stillBidFlows),
+      tokenScreener: async () => ok([]),
+      getBoard: () => [],
+      history: () => [],
+      now: () => Date.parse("2026-09-19T12:00:00.000Z"),
+      resultTtlMs: () => 900_000,
+    });
+    const row = await r.resolveWatchRow("ethereum", PEPE);
+    expect(calls).toBe(1);
+    expect(row?.verdict).toBe("distribution");
+    expect(row?.stale).toBe(false);
+  });
+
+  it("falls back to the saved read, marked stale, when the live read fails", async () => {
+    const PEPE = "0x6982508145454ce325ddbe47a25d4ec3d2311933";
+    const r = createResolver({
+      mode: () => "live",
+      getSnapshot,
+      flowIntelligence: async () => fail("upstream"),
+      tokenInformation: async () => fail("upstream"),
+      whoBoughtSold: async () => ok([]),
+      historicalFlowSummary: async () => ok(stillBidFlows),
+      tokenScreener: async () => ok([]),
+      getBoard: () => [],
+      history: () => [],
+      now: () => Date.parse("2026-09-19T12:00:00.000Z"),
+    });
+    const row = await r.resolveWatchRow("ethereum", PEPE);
+    if (getSnapshot("ethereum", PEPE)) {
+      expect(row?.stale).toBe(true);
+    } else {
+      expect(row).toBeNull();
+    }
+  });
+});

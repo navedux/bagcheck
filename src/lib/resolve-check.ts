@@ -237,15 +237,18 @@ export function createResolver(deps: ResolveDeps) {
   const wallets = new MemoryCache(1_000);
   const walletInflight = new Map<string, Promise<WalletResult>>();
 
-  /** Any read already paid for, or saved: full check, lean read, snapshots. */
-  function peekLean(chain: Chain, addr: string): LeanRead | null {
+  /** A read already paid for in this process: a full check or a lean read. */
+  function peekCached(chain: Chain, addr: string): LeanRead | null {
     const now = deps.now();
     const full = results.get<ResolveResult>(`${chain}:${addr}:`, now);
-    if (full?.ok) {
+    if (full?.ok && !full.data.stale) {
       return { symbol: full.data.symbol, verdict: full.data.verdict, stats: full.data.stats };
     }
-    const lean = leans.get<LeanRead>(`${chain}:${addr}`, now);
-    if (lean) return lean;
+    return leans.get<LeanRead>(`${chain}:${addr}`, now) ?? null;
+  }
+
+  /** A saved read (featured snapshot or sample wallet). Never live data. */
+  function peekSaved(chain: Chain, addr: string): LeanRead | null {
     const snap = deps.getSnapshot(chain, addr);
     if (snap) {
       return { symbol: snap.symbol, verdict: scoreVerdict(snap.stats, snap.flows1d).verdict, stats: snap.stats };
@@ -255,6 +258,15 @@ export function createResolver(deps: ResolveDeps) {
       return { symbol: saved.symbol, verdict: scoreVerdict(saved.stats, saved.flows1d).verdict, stats: saved.stats };
     }
     return null;
+  }
+
+  /**
+   * What can be shown without spending: in live mode only reads paid for in
+   * this process (a saved read would pass days-old data off as live); in
+   * snapshot and sim mode, saved reads too.
+   */
+  function peekLean(chain: Chain, addr: string): LeanRead | null {
+    return peekCached(chain, addr) ?? (deps.mode() === "live" ? null : peekSaved(chain, addr));
   }
 
   /**
@@ -280,7 +292,8 @@ export function createResolver(deps: ResolveDeps) {
 
   /**
    * One row on the home list. Live mode uses the lean read (2 credits, not 7)
-   * and spends the caller's cold budget only when nothing is cached.
+   * and spends the caller's cold budget only when nothing is cached. If the
+   * live read is refused or fails, a saved read is shown marked stale.
    */
   async function resolveWatchRow(
     chain: Chain,
@@ -294,11 +307,16 @@ export function createResolver(deps: ResolveDeps) {
       const { symbol, verdict, stale, history, stats } = result.data;
       return { chain, address: addr, symbol, verdict, stale, history, volumeUsd: stats.volume24hUsd };
     }
-    let read = peekLean(chain, addr);
+    let read = peekCached(chain, addr);
+    let stale = false;
     if (!read) {
       const exempt = isFeatured(chain, addr);
-      if (deps.gate && !deps.gate.admit(options.client ?? "anon", deps.now(), exempt)) return null;
-      read = await leanRead(chain, addr);
+      const admitted = !deps.gate || deps.gate.admit(options.client ?? "anon", deps.now(), exempt);
+      read = admitted ? await leanRead(chain, addr) : null;
+      if (!read) {
+        read = peekSaved(chain, addr);
+        stale = read !== null;
+      }
     }
     if (!read) return null;
     return {
@@ -306,7 +324,7 @@ export function createResolver(deps: ResolveDeps) {
       address: addr,
       symbol: read.symbol,
       verdict: read.verdict,
-      stale: false,
+      stale,
       history: [],
       volumeUsd: read.stats.volume24hUsd,
     };
@@ -315,7 +333,7 @@ export function createResolver(deps: ResolveDeps) {
   function fromWalletSnapshot(snap: WalletSnapshot, stale: boolean): WalletRead {
     const rows: WalletRow[] = walletRows(snap.holdings).map((row) => ({
       ...row,
-      verdict: peekLean(row.chain, row.address)?.verdict ?? null,
+      verdict: (peekCached(row.chain, row.address) ?? peekSaved(row.chain, row.address))?.verdict ?? null,
     }));
     return {
       kind: snap.kind,
