@@ -28,7 +28,8 @@ export function upstashStore(
   url: string,
   token: string,
   fetchImpl: typeof fetch = fetch,
-  timeoutMs = 1_500,
+  // Generous enough for a cold start's first TLS handshake; past it the call is refused.
+  timeoutMs = 3_000,
 ): BudgetStore {
   const base = url.replace(/\/+$/, "");
 

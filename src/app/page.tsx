@@ -1,9 +1,9 @@
 import { HomeClient } from "@/components/HomeClient";
 import { liveChecksSpent } from "@/lib/nansen";
 
-// Whether today's live checks are spent can change during the day; re-read it
-// at most every 30 seconds rather than on every visit.
-export const revalidate = 30;
+// Whether today's live checks are spent can change at any moment, so home
+// renders per request. The shared-budget read behind it is cached for 30 s.
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const paused = await liveChecksSpent();
