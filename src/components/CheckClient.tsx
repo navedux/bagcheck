@@ -23,6 +23,7 @@ import {
   COL_STRIP,
   SIGNAL_FORK_HINT,
   STALE_REASON,
+  WALLET_HELD_HINT,
   WINDOW_RAIL,
   clockLine,
   stabilityLine,
@@ -179,6 +180,7 @@ export function CheckClient({
         <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2">
           <SignalHead
             verdict={checked.verdict}
+            held={!thin && bag.held === true}
             entryDate={thin ? undefined : resolvedDate}
           />
           {thin ? null : (
@@ -207,7 +209,7 @@ export function CheckClient({
                     urlEntryDate={entryDate}
                   />
                   {resolvedDate ? null : (
-                    <p className="stance">{SIGNAL_FORK_HINT}</p>
+                    <p className="stance">{bag.held ? WALLET_HELD_HINT : SIGNAL_FORK_HINT}</p>
                   )}
                 </div>
                 {checked.since ? <SinceLine since={checked.since} /> : null}

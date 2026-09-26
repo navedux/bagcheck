@@ -35,8 +35,9 @@ export default function AboutPage() {
         <AboutRow title="Data">
           Everything comes from the Nansen API: flow intelligence (last day and
           last hour), token info, and who bought and sold. Add a buy date and it
-          also pulls the history since then. Checks are cached, so looking twice
-          is free.
+          also pulls the history since then. Paste a wallet and it reads your
+          balances, then checks your five biggest bags. Checks are cached, so
+          looking twice is free.
         </AboutRow>
 
         <AboutRow title="Who">

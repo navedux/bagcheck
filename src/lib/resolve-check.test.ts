@@ -287,3 +287,97 @@ describe("snapshot without daily rows", () => {
     expect(result.data.since).toBeNull();
   });
 });
+
+describe("wallet resolver", () => {
+  const WALLET = "0x00000000000000000000000000000000000000aa";
+  const tokens = Array.from({ length: 8 }, (_, i) => `0x${(i + 1).toString(16).padStart(40, "b")}`);
+
+  function walletResolver(opts: { gate?: { perClientPerHour: number; globalPerHour: number } } = {}) {
+    let balanceCalls = 0;
+    let infoCalls = 0;
+    const r = createResolver({
+      mode: () => "live",
+      getSnapshot: () => null,
+      flowIntelligence: async () => ok({ ...stillBidFlows, exchangeNetFlowUsd: 900_000 }),
+      tokenInformation: async () => {
+        infoCalls += 1;
+        return ok({ symbol: "TKN", stats: liquid });
+      },
+      whoBoughtSold: async () => ok([]),
+      historicalFlowSummary: async () => ok(stillBidFlows),
+      tokenScreener: async () => ok([]),
+      getBoard: () => [],
+      history: () => [],
+      now: () => Date.parse("2026-09-19T12:00:00.000Z"),
+      resultTtlMs: () => 900_000,
+      gate: opts.gate ? new ColdGate(() => opts.gate!) : undefined,
+      walletBalance: async () => {
+        balanceCalls += 1;
+        return ok(
+          tokens.map((address, i) => ({
+            chain: "ethereum" as const,
+            address,
+            symbol: `T${i}`,
+            amount: 1,
+            priceUsd: 1,
+            valueUsd: 1000 - i,
+            native: false,
+          })),
+        );
+      },
+    });
+    return { ...r, balanceCalls: () => balanceCalls, infoCalls: () => infoCalls };
+  }
+
+  it("reads only the top holdings and caches the wallet", async () => {
+    const r = walletResolver();
+    const first = await r.resolveWallet("evm", WALLET);
+    if (!first.ok) throw new Error("expected ok");
+    expect(first.data.rows).toHaveLength(8);
+    expect(first.data.readCount).toBe(5);
+    expect(first.data.rows.slice(0, 5).every((row) => row.verdict === "distribution")).toBe(true);
+    expect(first.data.rows.slice(5).every((row) => row.verdict === null)).toBe(true);
+    expect(r.infoCalls()).toBe(5);
+    await r.resolveWallet("evm", WALLET.toUpperCase().replace("0X", "0x"));
+    expect(r.balanceCalls()).toBe(1);
+  });
+
+  it("spends one cold unit per wallet and stops a stream of wallets", async () => {
+    const r = walletResolver({ gate: { perClientPerHour: 1, globalPerHour: 100 } });
+    expect((await r.resolveWallet("evm", WALLET, { client: "x" })).ok).toBe(true);
+    const second = await r.resolveWallet("evm", "0x00000000000000000000000000000000000000bb", { client: "x" });
+    expect(second.ok).toBe(false);
+    if (second.ok) throw new Error("expected busy");
+    expect(second.error.code).toBe("busy");
+    expect(r.balanceCalls()).toBe(1);
+  });
+
+  it("reuses a wallet's lean reads for the home list", async () => {
+    const r = walletResolver({ gate: { perClientPerHour: 1, globalPerHour: 100 } });
+    await r.resolveWallet("evm", WALLET, { client: "x" });
+    const before = r.infoCalls();
+    const row = await r.resolveWatchRow("ethereum", tokens[0]!, { client: "x" });
+    expect(row?.verdict).toBe("distribution");
+    expect(r.infoCalls()).toBe(before);
+  });
+
+  it("serves only the saved sample wallet outside live mode", async () => {
+    const r = createResolver({
+      mode: () => "snapshot",
+      getSnapshot: () => null,
+      flowIntelligence: async () => ok(stillBidFlows),
+      tokenInformation: async () => ok({ symbol: "TKN", stats: liquid }),
+      whoBoughtSold: async () => ok([]),
+      historicalFlowSummary: async () => ok(stillBidFlows),
+      tokenScreener: async () => ok([]),
+      getBoard: () => [],
+      history: () => [],
+      now: () => Date.parse("2026-09-19T12:00:00.000Z"),
+      getWalletSnapshot: () => null,
+    });
+    const result = await r.resolveWallet("evm", WALLET);
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected not in demo");
+    expect(result.error.code).toBe("not_in_snapshot");
+  });
+});

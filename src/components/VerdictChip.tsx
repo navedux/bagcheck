@@ -41,11 +41,14 @@ export function FlowMark({
 export function SignalHead({
   verdict,
   entryDate,
+  held = false,
 }: {
   verdict: Verdict;
   entryDate?: string;
+  /** Came from the user's wallet: answer as a holder even without a date. */
+  held?: boolean;
 }) {
-  const holding = Boolean(entryDate);
+  const holding = Boolean(entryDate) || held;
   const signal = signalFor(verdict, holding);
   const muted = signal === "wait" || signal === "no-read";
 

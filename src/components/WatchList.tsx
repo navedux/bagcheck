@@ -41,6 +41,7 @@ import {
 } from "@/lib/storage";
 import type { WatchRow } from "@/lib/types";
 import { FOLLOW_LIMIT, normalizeAddress, watchOkSchema } from "@/lib/validate";
+import { isHolding } from "@/lib/bag";
 import { signalFor } from "@/lib/verdict";
 import { flipBadge, type FlipBadge } from "@/lib/watch";
 
@@ -236,7 +237,7 @@ export function WatchList({
         {ordered.map((row) => {
           const badge = state.badges[rowKey(row)];
           const ticket = parseBag(bagSnapshot(row.chain, row.address));
-          const signal = signalFor(row.verdict, Boolean(ticket.entryDate));
+          const signal = signalFor(row.verdict, isHolding(ticket));
           const status = watchStatus(ticket);
           return (
             <li key={rowKey(row)} className="row-item">

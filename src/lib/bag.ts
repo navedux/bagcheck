@@ -31,8 +31,15 @@ export const bagTicketSchema = z
       z.coerce.number().nonnegative().max(1_000_000_000).optional(),
     ),
     rule: bagRuleSchema.default("off"),
+    /** Added from the user's own wallet: held, even without a buy date. */
+    held: z.boolean().optional(),
   })
   .strict();
+
+/** Holding means a buy date, or the token came from the user's wallet. */
+export function isHolding(ticket: BagTicket): boolean {
+  return Boolean(ticket.entryDate) || ticket.held === true;
+}
 
 export type BagTicket = z.infer<typeof bagTicketSchema>;
 

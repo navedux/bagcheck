@@ -25,7 +25,9 @@ Try:
 3. **Add to bags**, then go home. Your bags keep the answer and the date on this device.
 4. Click **WSOL** (Quiet, Wait) and **PEPE** (Retail rush, Wait) for the others.
 
-Pasting a token outside the featured set in snapshot mode shows "Not in this demo". Use live mode for any token.
+5. Switch the paste field to **Wallet** and click **Try a sample wallet**: a real trader wallet, captured live. The headline reads "3 of your 5 biggest bags are cashing out", with an answer for each of the top 5 holdings. **Add all to bags** puts them on your list as held.
+
+Pasting a token or wallet outside the saved set in snapshot mode shows "Not in this demo". Use live mode for anything.
 
 ## Live mode (any token)
 
@@ -41,7 +43,8 @@ Restart `pnpm dev`. A cold check makes 7 Nansen calls (12 credits with a buy dat
 
 ## How the read works
 
-- **Data:** `tgm/flow-intelligence` (1d and 1h), `tgm/token-information`, `tgm/who-bought-sold`, and `tgm/historical-token-flow-summary` for the buy-date window. No smart-money endpoints, no labels.
+- **Data:** `tgm/flow-intelligence` (1d and 1h), `tgm/token-information`, `tgm/who-bought-sold`, and `tgm/historical-token-flow-summary` for the buy-date window. Wallets use `profiler/address/current-balance` (allowed with attribution). No smart-money endpoints, no labels.
+- **Wallets:** one balance call (Ethereum and Base together, or Solana), then a two-call read (token info and 24h flows) for the 5 biggest non-stablecoin holdings. Native ETH is read through WETH. Rows 6 to 10 show an answer only if one is already cached; otherwise a Check link.
 - **Score:** each cohort's net flow as a share of 24h volume. A move counts at 6% of a day's volume.
 - **What's happening, first match wins:** Too small → Still buying → Cashing out → Retail rush → Mixed → Quiet. New-wallet flow above a full day of volume is treated as transfers, not buying.
 - **The answer:** Still buying reads Looks good (thinking of buying) or Hold (already holding). Cashing out reads Stay away or Time to go. Everything else reads Wait, or Hold if you hold. It describes what wallets did; it's not financial advice.
@@ -57,6 +60,7 @@ The key never reaches the browser, and a public live deploy cannot be used to dr
 - New (uncached) tokens are capped per client per hour and per server per hour. Featured tokens skip the per-client cap. Past the cap you get the saved read or a busy page.
 - A daily credit cap stops outbound calls.
 - The catalog and board endpoints never call Nansen live.
+- A cold wallet costs about 11 credits and one unit of the caller's hourly budget. The home list uses the same two-call read (2 credits, not 7), and reuses whatever a wallet already read.
 - Unknown tokens stop after one call. Failed checks are cached briefly, so retries are free.
 - Origin check, per-IP rate limit (the Vercel IP header is trusted only on Vercel), CSP, HSTS, frame blocking, and Zod on every input.
 - No image proxy: logos load straight from Logo.dev, so `/_next/image` cannot spend your quota.
@@ -75,6 +79,7 @@ pnpm typecheck
 pnpm lint
 pnpm check-snapshot         # fails on prohibited endpoints or label fields in data/
 pnpm refresh-live-snapshot  # recapture data/snapshot/live.json (key in .env.local, ~70 credits)
+pnpm refresh-sample-wallet  # recapture data/snapshot/wallet.json (~11 credits)
 pnpm export-ledger          # summarize your local call log (data/call-log.json)
 pnpm warmup                 # one live check per featured token, local only
 ```

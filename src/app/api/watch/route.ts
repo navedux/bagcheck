@@ -3,7 +3,7 @@ import { err, ok } from "@/lib/envelope";
 import { API_HEADERS } from "@/lib/headers";
 import { rejectIfGuarded } from "@/lib/origin";
 import { clientKey } from "@/lib/rate-limit";
-import { resolveCheck } from "@/lib/resolve-check";
+import { resolveWatchRow } from "@/lib/resolve-check";
 import type { WatchRow } from "@/lib/types";
 import { normalizeAddress, watchBodySchema } from "@/lib/validate";
 
@@ -29,27 +29,14 @@ export async function POST(request: Request) {
   }
 
   // Each cold row spends the caller's hourly budget; warm rows are free.
+  // Live rows use the lean read: verdict only, 2 credits instead of 7.
   const client = clientKey(request);
   const results = await Promise.all(
     parsed.data.items.map((item) =>
-      resolveCheck(item.chain, normalizeAddress(item.address), undefined, { client }),
+      resolveWatchRow(item.chain, normalizeAddress(item.address), { client }),
     ),
   );
-  const rows: WatchRow[] = results.flatMap((result) => {
-    if (!result.ok) return [];
-    const { chain, address, symbol, verdict, stale, history, stats } = result.data;
-    return [
-      {
-        chain,
-        address,
-        symbol,
-        verdict,
-        stale,
-        history,
-        volumeUsd: stats.volume24hUsd,
-      },
-    ];
-  });
+  const rows: WatchRow[] = results.filter((row): row is WatchRow => row !== null);
 
   return Response.json(ok(rows), {
     headers: API_HEADERS,

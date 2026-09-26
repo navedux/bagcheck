@@ -1,0 +1,194 @@
+{
+  "kind": "evm",
+  "address": "0xfbeedcfe378866dab6abbafd8b2986f5c1768737",
+  "capturedAt": "2026-09-25T17:30:56.834Z",
+  "holdings": [
+    {
+      "chain": "ethereum",
+      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "symbol": "WETH",
+      "amount": 183.25538970626857,
+      "priceUsd": 2686.23,
+      "valueUsd": 492291.01421433414,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0x62d0a8458ed7719fdaf978fe5929c6d342b0bfce",
+      "symbol": "BEAM",
+      "amount": 38188335.19697585,
+      "priceUsd": 0.00223044930796723,
+      "valueUsd": 85177.1458125154,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
+      "symbol": "SNX",
+      "amount": 308804.94692656776,
+      "priceUsd": 0.259315483396122,
+      "valueUsd": 80077.90408737671,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0xb0ffa8000886e57f86dd5264b9582b2ad87b2b91",
+      "symbol": "W",
+      "amount": 5980932.628150799,
+      "priceUsd": 0.0120492920365434,
+      "valueUsd": 72066.00388748001,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0xfaba6f8e4a5e8ab82f62fe7c39859fa577269be3",
+      "symbol": "ONDO",
+      "amount": 87760.56514823287,
+      "priceUsd": 0.540922498277446,
+      "valueUsd": 47471.66415022268,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+      "symbol": "SHIB",
+      "amount": 5241940208.96322,
+      "priceUsd": 0.00000583540135593019,
+      "valueUsd": 30588.825003088958,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0x04fa0d235c4abf4bcf4787af4cf447de572ef828",
+      "symbol": "UMA",
+      "amount": 66058.18384626883,
+      "priceUsd": 0.399961639141052,
+      "valueUsd": 26420.739489834643,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0x767fe9edc9e0df98e07454847909b5e959d7ca0e",
+      "symbol": "ILV",
+      "amount": 6084.716623901357,
+      "priceUsd": 3.86464779926904,
+      "valueUsd": 23515.286709736123,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0x643c4e15d7d62ad0abec4a9bd4b001aa3ef52d66",
+      "symbol": "SYRUP",
+      "amount": 105145.31013902006,
+      "priceUsd": 0.22089877633672,
+      "valueUsd": 23226.47034725445,
+      "native": false
+    },
+    {
+      "chain": "ethereum",
+      "address": "0x5afe3855358e112b5647b952709e6165e1c1eeee",
+      "symbol": "SAFE",
+      "amount": 199432.27783630925,
+      "priceUsd": 0.114463056788373,
+      "valueUsd": 22827.628143412046,
+      "native": false
+    }
+  ],
+  "lean": [
+    {
+      "chain": "ethereum",
+      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "symbol": "WETH",
+      "stats": {
+        "volume24hUsd": 401513978.3801897,
+        "marketCapUsd": 5579470029.918363,
+        "liquidityUsd": 0,
+        "totalHolders": 588468,
+        "tokenDeploymentDate": "2017-12-12 11:17:35"
+      },
+      "flows1d": {
+        "smartTraderNetFlowUsd": -124.06447123634891,
+        "whaleNetFlowUsd": 0,
+        "publicFigureNetFlowUsd": 0,
+        "exchangeNetFlowUsd": 92022502.20224878,
+        "freshWalletsNetFlowUsd": 137906651.95300776
+      }
+    },
+    {
+      "chain": "ethereum",
+      "address": "0x62d0a8458ed7719fdaf978fe5929c6d342b0bfce",
+      "symbol": "BEAM",
+      "stats": {
+        "volume24hUsd": 184288.88064725872,
+        "marketCapUsd": 114370401.52722156,
+        "liquidityUsd": 1501501.587506204,
+        "totalHolders": 35065,
+        "tokenDeploymentDate": "2023-10-16 14:24:35"
+      },
+      "flows1d": {
+        "smartTraderNetFlowUsd": 0,
+        "whaleNetFlowUsd": 0,
+        "publicFigureNetFlowUsd": 0,
+        "exchangeNetFlowUsd": 8816.597632462835,
+        "freshWalletsNetFlowUsd": 0
+      }
+    },
+    {
+      "chain": "ethereum",
+      "address": "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
+      "symbol": "SNX",
+      "stats": {
+        "volume24hUsd": 22973.182109194375,
+        "marketCapUsd": 150657262.65819606,
+        "liquidityUsd": 103495.5808084169,
+        "totalHolders": 52442,
+        "tokenDeploymentDate": "2019-08-09 05:36:48"
+      },
+      "flows1d": {
+        "smartTraderNetFlowUsd": 0,
+        "whaleNetFlowUsd": 0,
+        "publicFigureNetFlowUsd": 0,
+        "exchangeNetFlowUsd": 67820.86469884022,
+        "freshWalletsNetFlowUsd": 0
+      }
+    },
+    {
+      "chain": "ethereum",
+      "address": "0xb0ffa8000886e57f86dd5264b9582b2ad87b2b91",
+      "symbol": "W",
+      "stats": {
+        "volume24hUsd": 25036.535712741468,
+        "marketCapUsd": 78343808.47835307,
+        "liquidityUsd": 107932.30343125062,
+        "totalHolders": 5774,
+        "tokenDeploymentDate": "2024-04-15 22:48:11"
+      },
+      "flows1d": {
+        "smartTraderNetFlowUsd": 0,
+        "whaleNetFlowUsd": 0,
+        "publicFigureNetFlowUsd": 0,
+        "exchangeNetFlowUsd": 9277.523262447528,
+        "freshWalletsNetFlowUsd": 0
+      }
+    },
+    {
+      "chain": "ethereum",
+      "address": "0xfaba6f8e4a5e8ab82f62fe7c39859fa577269be3",
+      "symbol": "ONDO",
+      "stats": {
+        "volume24hUsd": 5520559.4967603935,
+        "marketCapUsd": 2633930498.5141726,
+        "liquidityUsd": 1252824.0898171836,
+        "totalHolders": 162302,
+        "tokenDeploymentDate": "2022-04-28 05:23:32"
+      },
+      "flows1d": {
+        "smartTraderNetFlowUsd": -93.23050046522174,
+        "whaleNetFlowUsd": 0,
+        "publicFigureNetFlowUsd": 0,
+        "exchangeNetFlowUsd": 559251.1356884917,
+        "freshWalletsNetFlowUsd": 4668106.705949868
+      }
+    }
+  ]
+}

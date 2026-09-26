@@ -4,12 +4,15 @@ import { env, type Env } from "./env";
 import { MemoryCache, cacheKey, ttlMs } from "./cache";
 import { Ledger } from "./ledger";
 import {
+  BALANCE_PATH,
   CREDITS,
   FLOW_PATH,
   HISTORICAL_PATH,
   SCREENER_PATH,
   TOKEN_INFO_PATH,
   WHO_BOUGHT_SOLD_PATH,
+  balanceRequestSchema,
+  balanceResponseSchema,
   errorEnvelopeSchema,
   flowRequestSchema,
   flowResponseSchema,
@@ -17,6 +20,7 @@ import {
   historicalFlowsFromRow,
   historicalRequestSchema,
   historicalResponseSchema,
+  holdingsFromBalance,
   isAllowedPath,
   isForbiddenPath,
   isTrustedNansenUrl,
@@ -33,7 +37,15 @@ import {
   whoBoughtSoldResponseSchema,
   type AllowedPath,
 } from "./nansen-schema";
-import type { Chain, CohortFlows, ScreenerToken, TokenStats, TraderPrint } from "./types";
+import type {
+  Chain,
+  CohortFlows,
+  Holding,
+  ScreenerToken,
+  TokenStats,
+  TraderPrint,
+  WalletKind,
+} from "./types";
 import { isPartialCoverage } from "./window";
 
 export type NansenError = {
@@ -489,6 +501,29 @@ export function createNansenClient(deps: NansenDeps) {
         parsed.data,
         (json) => screenerTokensFromResponse(screenerResponseSchema.parse(json)),
         ttl().screener,
+      );
+    },
+
+    /** One call per wallet: `all` covers Ethereum and Base, Solana is its own. */
+    async walletBalance(kind: WalletKind, address: string): Promise<CallResult<Holding[]>> {
+      const body = {
+        address,
+        chain: kind === "solana" ? ("solana" as const) : ("all" as const),
+        hide_spam_token: true as const,
+        pagination: { page: 1 as const, per_page: 40 },
+      };
+      const parsed = balanceRequestSchema.safeParse(body);
+      if (!parsed.success) {
+        return {
+          ok: false,
+          error: { code: "bad_request", path: BALANCE_PATH, status: null },
+        };
+      }
+      return call(
+        BALANCE_PATH,
+        parsed.data,
+        (json) => holdingsFromBalance(balanceResponseSchema.parse(json)),
+        ttl().flows1d,
       );
     },
 

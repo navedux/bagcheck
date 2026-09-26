@@ -1,16 +1,39 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import Link from "next/link";
+import { useState, useSyncExternalStore } from "react";
+import { SAMPLE_WALLET } from "../../data/featured";
 import { BrandStrip } from "@/components/BrandStrip";
 import { HomeWatch } from "@/components/HomeWatch";
-import { TokenPaste } from "@/components/TokenPaste";
+import { TokenPaste, type PasteMode } from "@/components/TokenPaste";
 import { TryChips } from "@/components/TryTokens";
-import { HOME_AGAIN, HOME_EYEBROW, HOME_HEAD, HOME_NEXT, HOME_OR } from "@/lib/copy";
+import {
+  HOME_AGAIN,
+  HOME_EYEBROW,
+  HOME_HEAD,
+  HOME_NEXT,
+  HOME_NEXT_WALLET,
+  HOME_OR,
+  WALLET_SAMPLE,
+} from "@/lib/copy";
 import { followSnapshot, parseFollowing, subscribeFollow } from "@/lib/storage";
+
+function SampleWallet() {
+  if (!SAMPLE_WALLET) return null;
+  return (
+    <Link
+      href={`/w/${SAMPLE_WALLET.kind}/${SAMPLE_WALLET.address}`}
+      className="caption text-[var(--ink)] underline decoration-[var(--line)] underline-offset-4"
+    >
+      {WALLET_SAMPLE}
+    </Link>
+  );
+}
 
 export function HomeClient() {
   const followRaw = useSyncExternalStore(subscribeFollow, followSnapshot, () => "[]");
   const hasList = parseFollowing(followRaw).length > 0;
+  const [mode, setMode] = useState<PasteMode>("token");
 
   if (hasList) {
     return (
@@ -18,10 +41,18 @@ export function HomeClient() {
         <section>
           <h2 className="section">{HOME_AGAIN}</h2>
           <div className="mt-4">
-            <TokenPaste autoFocus={false} />
+            <TokenPaste autoFocus={false} mode={mode} onModeChange={setMode} />
           </div>
-          <h3 className="section mt-8">{HOME_OR}</h3>
-          <TryChips />
+          {mode === "wallet" ? (
+            <p className="mt-4">
+              <SampleWallet />
+            </p>
+          ) : (
+            <>
+              <h3 className="section mt-8">{HOME_OR}</h3>
+              <TryChips />
+            </>
+          )}
         </section>
         <div className="mt-12">
           <HomeWatch />
@@ -40,9 +71,14 @@ export function HomeClient() {
       </div>
       <h1 className="display mt-4">{HOME_HEAD}</h1>
       <div className="mt-6">
-        <TokenPaste />
+        <TokenPaste mode={mode} onModeChange={setMode} />
       </div>
-      <p className="caption mt-4 max-w-md">{HOME_NEXT}</p>
+      <p className="caption mt-4 max-w-md">{mode === "wallet" ? HOME_NEXT_WALLET : HOME_NEXT}</p>
+      {mode === "wallet" ? (
+        <p className="mt-3">
+          <SampleWallet />
+        </p>
+      ) : null}
       <div className="mt-12">
         <HomeWatch />
       </div>

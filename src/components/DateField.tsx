@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import {
   ACTION_DATE,
   ACTION_DATE_CLEAR,
+  ACTION_DATE_ADD,
   ACTION_DATE_EMPTY,
   ACTION_DATE_NEXT,
   ACTION_DATE_PREV,
@@ -207,7 +208,7 @@ export function DateField({
         onClick={toggle}
       >
         <span className={selected ? "field-date-value" : "field-date-value is-empty"}>
-          {selected ? formatEntryDay(selected) : ACTION_DATE_EMPTY}
+          {selected ? formatEntryDay(selected) : ticket.held ? ACTION_DATE_ADD : ACTION_DATE_EMPTY}
         </span>
         <i aria-hidden="true" className="field-date-icon ri-calendar-line" />
       </button>

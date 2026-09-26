@@ -22,7 +22,18 @@ const mono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Bagcheck",
-  description: "Who's buying your bag? Paste a token and see who bought and sold it in the last 24 hours, from Nansen.",
+  description: "Who's buying your bag? Paste a token or a wallet and see who bought and sold it in the last 24 hours, from Nansen.",
+  openGraph: {
+    title: "Bagcheck: who's buying your bag?",
+    description: "Paste a token or a wallet. One straight answer from 24 hours of Nansen onchain flow.",
+    siteName: "Bagcheck",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bagcheck: who's buying your bag?",
+    description: "Paste a token or a wallet. One straight answer from 24 hours of Nansen onchain flow.",
+  },
 };
 
 export default function RootLayout({

@@ -190,3 +190,30 @@ export type BoardRow = {
   shift: number;
   verdict: Verdict;
 };
+
+/** One token in a wallet, from Nansen balances. */
+export type Holding = {
+  chain: Chain;
+  address: string;
+  symbol: string;
+  amount: number;
+  priceUsd: number;
+  valueUsd: number;
+  /** Native ETH, read through WETH. */
+  native: boolean;
+};
+
+export type WalletKind = "solana" | "evm";
+
+/** A holding with its 24h verdict when one is available without a cold check. */
+export type WalletRow = Holding & { verdict: Verdict | null };
+
+export type WalletRead = {
+  kind: WalletKind;
+  address: string;
+  rows: WalletRow[];
+  /** How many of the top rows were read (the rest need a click). */
+  readCount: number;
+  source: DataMode;
+  stale: boolean;
+};

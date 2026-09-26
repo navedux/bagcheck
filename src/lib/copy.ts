@@ -110,6 +110,8 @@ export const LIVE_NOT_FOUND =
   "Nansen has nothing on this token on this chain. Double-check the chain, or try another one.";
 export const LIVE_AUTH = "Nansen did not accept the request. Try again later.";
 export const LIVE_UNAVAILABLE = "Nansen isn't answering right now. Try again in a minute.";
+export const WALLET_NOT_IN_DEMO =
+  "This demo only has one sample wallet saved. Run it with a Nansen key to check any wallet.";
 export const LIVE_BUSY =
   "You've checked a lot of new tokens this hour. The featured ones still work, or come back in a bit.";
 
@@ -124,6 +126,55 @@ export const HOME_OR = "Or try one";
 export const HOME_AGAIN = "Check another bag";
 export const PASTE_PLACEHOLDER = "Paste a token address";
 export const PASTE_SUBMIT = "Check";
+export const PASTE_MODE_TOKEN = "Token";
+export const PASTE_MODE_WALLET = "Wallet";
+export const PASTE_MODE_LABEL = "What are you pasting?";
+export const WALLET_PLACEHOLDER = "Paste a wallet address";
+export const WALLET_SUBMIT = "Check bags";
+export const WALLET_EMPTY = "Paste a wallet address.";
+export const WALLET_INVALID = "That's not a Solana, Ethereum, or Base wallet.";
+export const WALLET_HINT_EVM = "Checks Ethereum and Base together.";
+export const WALLET_HINT_SOL = "Solana wallet.";
+export const HOME_NEXT_WALLET =
+  "Paste your wallet. We look at your biggest bags and tell you which ones people are cashing out of.";
+export const WALLET_SAMPLE = "Try a sample wallet";
+export const WALLET_EYEBROW = "Your bags, checked";
+export const WALLET_ASSUME = "Answers assume you hold these. Last 24 hours of Nansen wallet flow.";
+export const WALLET_ADD_ALL = "Add all to bags";
+export const WALLET_ADDED_ALL = "In your bags";
+export const WALLET_COL_VALUE = "Value";
+export const WALLET_CHECK = "Check";
+export const WALLET_FOOT =
+  "Your 10 biggest holdings on Solana, Ethereum, and Base worth $10 or more, stablecoins left out. The top 5 are read automatically; tap Check for the rest.";
+export const WALLET_EMPTY_HEAD = "Nothing we can read here.";
+export const WALLET_EMPTY_LINE =
+  "We only check Solana, Ethereum, and Base tokens worth $10 or more, and this wallet has none right now.";
+export const WALLET_LOADING = "Asking Nansen what's in this wallet…";
+export const WALLET_NATIVE = "Read through WETH";
+export const WALLET_BAD_HEAD = "That's not a wallet address.";
+
+export function walletAddedLine(count: number): string {
+  if (count === 0) return "Those are already in your bags.";
+  return count === 1 ? "Added 1 to your bags." : `Added ${count} to your bags.`;
+}
+
+/** The headline on a wallet page: how many of the read bags are cashing out. */
+export function walletSummary(verdicts: (Verdict | null)[]): string {
+  const read = verdicts.filter((verdict): verdict is Verdict => verdict !== null);
+  const n = read.length;
+  if (n === 0) return "Couldn't read any of your bags right now.";
+  const out = read.filter((verdict) => verdict === "distribution").length;
+  const bags = n === 1 ? "bag" : "bags";
+  if (out === 0) {
+    return n === 1
+      ? "Your biggest bag isn't cashing out."
+      : `None of your ${n} biggest ${bags} are cashing out.`;
+  }
+  if (out === n) {
+    return n === 1 ? "Your biggest bag is cashing out." : `All ${n} of your biggest bags are cashing out.`;
+  }
+  return `${out} of your ${n} biggest bags ${out === 1 ? "is" : "are"} cashing out.`;
+}
 export const PASTE_ERROR = "Paste a token address from Solana, Ethereum, or Base.";
 export const PASTE_EMPTY = "Paste a token address.";
 export const PASTE_INCOMPLETE = "That address is incomplete.";
@@ -249,6 +300,7 @@ export const ACTION_DATE = "Bought on";
 export const ACTION_DATE_HINT =
   "If you already hold it, the answer is about keeping it, not buying it.";
 export const ACTION_DATE_EMPTY = "Not holding yet";
+export const ACTION_DATE_ADD = "Add buy date";
 export const ACTION_DATE_CLEAR = "Clear";
 export const ACTION_DATE_PREV = "Previous month";
 export const ACTION_DATE_NEXT = "Next month";
@@ -425,8 +477,12 @@ export function sinceYouBoughtLine(
   return `Since you bought on ${when}, not much has moved.`;
 }
 
+export const WALLET_HELD = "In your wallet";
+export const WALLET_HELD_HINT = "In your wallet. Add the day you bought to see what changed since.";
+
 export function watchStatus(ticket: BagTicket): string {
-  return ticket.entryDate ? formatEntryDay(ticket.entryDate) : WATCH_UNSET;
+  if (ticket.entryDate) return formatEntryDay(ticket.entryDate);
+  return ticket.held ? WALLET_HELD : WATCH_UNSET;
 }
 
 export function hourTick(stats: TokenStats, flows: CohortFlows): string {

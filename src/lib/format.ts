@@ -29,9 +29,13 @@ export function formatSignedUsd(value: number): string {
 }
 
 export function formatCount(value: number): string {
+  if (value >= 1_000_000_000_000) return `${(value / 1_000_000_000_000).toFixed(1)}T`;
+  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`;
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k`;
-  return String(Math.round(value));
+  if (value >= 10) return String(Math.round(value));
+  if (value > 0) return String(Number(value.toPrecision(2)));
+  return "0";
 }
 
 export function formatPctOfVol(normalized: number): string {

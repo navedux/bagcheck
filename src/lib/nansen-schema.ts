@@ -1,12 +1,22 @@
 import { z } from "zod";
 import { sanitizeAddress, sanitizeSymbol } from "./sanitize";
-import { CHAINS, type Chain, type CohortFlows, type ScreenerToken, type TokenStats, type TraderPrint } from "./types";
+import {
+  CHAINS,
+  type Chain,
+  type CohortFlows,
+  type Holding,
+  type ScreenerToken,
+  type TokenStats,
+  type TraderPrint,
+} from "./types";
 
 export const FLOW_PATH = "tgm/flow-intelligence" as const;
 export const TOKEN_INFO_PATH = "tgm/token-information" as const;
 export const WHO_BOUGHT_SOLD_PATH = "tgm/who-bought-sold" as const;
 export const HISTORICAL_PATH = "tgm/historical-token-flow-summary" as const;
 export const SCREENER_PATH = "token-screener" as const;
+/** Wallet balances. Allowed with attribution per the redistribution guide. */
+export const BALANCE_PATH = "profiler/address/current-balance" as const;
 
 export const ALLOWED_PATHS = [
   FLOW_PATH,
@@ -14,6 +24,7 @@ export const ALLOWED_PATHS = [
   WHO_BOUGHT_SOLD_PATH,
   HISTORICAL_PATH,
   SCREENER_PATH,
+  BALANCE_PATH,
 ] as const;
 export type AllowedPath = (typeof ALLOWED_PATHS)[number];
 
@@ -30,6 +41,7 @@ export const CREDITS: Record<AllowedPath, number> = {
   [WHO_BOUGHT_SOLD_PATH]: 1,
   [HISTORICAL_PATH]: 5,
   [SCREENER_PATH]: 1,
+  [BALANCE_PATH]: 1,
 };
 
 export const flowTimeframeSchema = z.enum(["5m", "1h", "6h", "12h", "1d", "7d"]);
@@ -360,4 +372,66 @@ export function nansenRequestUrl(baseUrl: string, path: AllowedPath): string {
     return `${origin}/api/v1beta1/${path}`;
   }
   return `${base}/${path}`;
+}
+
+/**
+ * profiler/address/current-balance. Verified live Sep 25: rows carry chain,
+ * token_address, token_symbol, token_name, token_amount, price_usd, value_usd,
+ * sorted by value. No label fields. Native ETH is 0xeeee...eeee.
+ */
+export const balanceRequestSchema = z
+  .object({
+    address: z.string().min(1),
+    chain: z.enum(["solana", "all"]),
+    hide_spam_token: z.literal(true),
+    pagination: z.object({ page: z.literal(1), per_page: z.number().int().min(1).max(50) }).strict(),
+  })
+  .strict();
+
+export const balanceRowSchema = z
+  .object({
+    chain: z.string(),
+    token_address: z.string().nullable().optional(),
+    token_symbol: nullableString,
+    token_amount: nullableNumber,
+    price_usd: nullableNumber,
+    value_usd: nullableNumber,
+  })
+  .passthrough();
+
+export const balanceResponseSchema = z
+  .object({
+    data: z.array(balanceRowSchema),
+  })
+  .passthrough();
+
+/** Native ETH has no contract; its flows are read through WETH on the same chain. */
+export const NATIVE_EVM = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+export const WRAPPED_NATIVE: Record<"ethereum" | "base", string> = {
+  ethereum: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  base: "0x4200000000000000000000000000000000000006",
+};
+
+export function holdingsFromBalance(
+  payload: z.infer<typeof balanceResponseSchema>,
+): Holding[] {
+  const rows: Holding[] = [];
+  for (const row of payload.data) {
+    if (!CHAINS.includes(row.chain as Chain)) continue;
+    const chain = row.chain as Chain;
+    const raw = (row.token_address ?? "").trim();
+    if (!raw) continue;
+    const native = chain !== "solana" && raw.toLowerCase() === NATIVE_EVM;
+    const address = native ? WRAPPED_NATIVE[chain as "ethereum" | "base"] : raw;
+    rows.push({
+      chain,
+      address: sanitizeAddress(chain === "solana" ? address : address.toLowerCase()),
+      symbol: sanitizeSymbol(row.token_symbol ?? "") || "TOKEN",
+      amount: num(row.token_amount),
+      priceUsd: num(row.price_usd),
+      valueUsd: num(row.value_usd),
+      native,
+    });
+  }
+  return rows;
 }

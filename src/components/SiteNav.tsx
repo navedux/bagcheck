@@ -1,17 +1,22 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+/** The side-eye bag. Regenerate with `python3 scripts/brand/icon.py`. */
 function BrandMark() {
   return (
-    <svg aria-hidden="true" className="site-mark" width="16" height="16" viewBox="0 0 16 16">
-      <rect x="0.5" y="0.5" width="7" height="7" fill="var(--raised)" stroke="var(--line-strong)" />
-      <rect x="8.5" y="0.5" width="7" height="7" fill="var(--raised)" stroke="var(--line-strong)" />
-      <rect x="0.5" y="8.5" width="7" height="7" fill="var(--raised)" stroke="var(--line-strong)" />
-      <rect x="8.5" y="8.5" width="7" height="7" fill="var(--p-cyan)" />
-    </svg>
+    <Image
+      src="/brand/bagcheck-icon.svg"
+      alt=""
+      aria-hidden="true"
+      width={22}
+      height={22}
+      className="site-mark"
+      priority
+    />
   );
 }
 

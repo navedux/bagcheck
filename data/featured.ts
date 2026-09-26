@@ -94,3 +94,16 @@ export const TRY_TOKENS = [
   address: string;
   expectedVerdict: FeaturedMint["expectedVerdict"];
 }[];
+
+/**
+ * The sample wallet on home. Captured live into data/snapshot/wallet.json by
+ * `pnpm refresh-live-snapshot`, so it works without a key. A public trader
+ * address, shown as an address only.
+ */
+export const SAMPLE_WALLET_CAPTURE = {
+  kind: "evm",
+  address: "0xfbeedcfe378866dab6abbafd8b2986f5c1768737",
+} as const;
+
+export const SAMPLE_WALLET: { kind: "solana" | "evm"; address: string } | null =
+  SAMPLE_WALLET_CAPTURE;

@@ -5,6 +5,8 @@ import { MemoryCache } from "./cache";
 import { ColdGate } from "./cold-gate";
 import { dataMode, env } from "./env";
 import { getLiveSnapshot } from "./live-snapshot";
+import { WALLET_READS, walletRows } from "./wallet";
+import { getLeanSnapshot, getWalletSnapshot, type LeanToken, type WalletSnapshot } from "./wallet-snapshot";
 import { nansen, type CallResult } from "./nansen";
 import { sim, simDaily, simHistory } from "./sim/client";
 import { sanitizeSymbol } from "./sanitize";
@@ -23,6 +25,11 @@ import {
   type CohortFlows,
   type DataMode,
   type EarlyExit,
+  type Holding,
+  type WalletKind,
+  type WalletRead,
+  type WalletRow,
+  type WatchRow,
   type ScreenerToken,
   type TokenSnapshot,
   type TokenStats,
@@ -37,6 +44,7 @@ import {
   LIVE_BUSY,
   LIVE_NOT_FOUND,
   LIVE_UNAVAILABLE,
+  WALLET_NOT_IN_DEMO,
 } from "./copy";
 import { normalizeAddress } from "./validate";
 import {
@@ -63,6 +71,10 @@ export type ResolveError = {
 
 export type ResolveResult =
   | { ok: true; data: CheckedToken }
+  | { ok: false; error: ResolveError };
+
+export type WalletResult =
+  | { ok: true; data: WalletRead }
   | { ok: false; error: ResolveError };
 
 /**
@@ -118,7 +130,14 @@ export type ResolveDeps = {
   resultTtlMs?: () => number;
   /** How long the early-exit read may hold the page before it is skipped. */
   earlyExitBudgetMs?: number;
+  /** Wallet balances (live only). */
+  walletBalance?: (kind: WalletKind, address: string) => Promise<CallResult<Holding[]>>;
+  /** Saved sample wallet and per-token lean reads, for snapshot and fallback. */
+  getWalletSnapshot?: (kind: WalletKind, address: string) => WalletSnapshot | null;
+  getLeanSnapshot?: (chain: Chain, address: string) => LeanToken | null;
 };
+
+type LeanRead = { symbol: string; verdict: Verdict; stats: TokenStats };
 
 export type ResolveOptions = {
   /** Rate-limit identity of the caller, for the cold-check gate. */
@@ -211,6 +230,174 @@ export function createResolver(deps: ResolveDeps) {
       return await request;
     } finally {
       inflight.delete(key);
+    }
+  }
+
+  const leans = new MemoryCache(4_000);
+  const wallets = new MemoryCache(1_000);
+  const walletInflight = new Map<string, Promise<WalletResult>>();
+
+  /** Any read already paid for, or saved: full check, lean read, snapshots. */
+  function peekLean(chain: Chain, addr: string): LeanRead | null {
+    const now = deps.now();
+    const full = results.get<ResolveResult>(`${chain}:${addr}:`, now);
+    if (full?.ok) {
+      return { symbol: full.data.symbol, verdict: full.data.verdict, stats: full.data.stats };
+    }
+    const lean = leans.get<LeanRead>(`${chain}:${addr}`, now);
+    if (lean) return lean;
+    const snap = deps.getSnapshot(chain, addr);
+    if (snap) {
+      return { symbol: snap.symbol, verdict: scoreVerdict(snap.stats, snap.flows1d).verdict, stats: snap.stats };
+    }
+    const saved = deps.getLeanSnapshot?.(chain, addr);
+    if (saved) {
+      return { symbol: saved.symbol, verdict: scoreVerdict(saved.stats, saved.flows1d).verdict, stats: saved.stats };
+    }
+    return null;
+  }
+
+  /**
+   * The cheap read: token information and 24h flows, two calls, enough for
+   * the verdict. Unknown tokens stop after the first call. Not gated here;
+   * callers spend the gate.
+   */
+  async function leanRead(chain: Chain, addr: string): Promise<LeanRead | null> {
+    const seen = peekLean(chain, addr);
+    if (seen || deps.mode() !== "live") return seen;
+    const info = await deps.tokenInformation(chain, addr);
+    if (!info.ok || isUnknownToken(info.data)) return null;
+    const flows = await deps.flowIntelligence(chain, addr, "1d");
+    if (!flows.ok) return null;
+    const read: LeanRead = {
+      symbol: sanitizeSymbol(info.data.symbol ?? "") || "TOKEN",
+      verdict: scoreVerdict(info.data.stats, flows.data).verdict,
+      stats: info.data.stats,
+    };
+    leans.set(`${chain}:${addr}`, read, deps.resultTtlMs?.() ?? STALE_RESULT_TTL_MS, deps.now());
+    return read;
+  }
+
+  /**
+   * One row on the home list. Live mode uses the lean read (2 credits, not 7)
+   * and spends the caller's cold budget only when nothing is cached.
+   */
+  async function resolveWatchRow(
+    chain: Chain,
+    address: string,
+    options: ResolveOptions = {},
+  ): Promise<WatchRow | null> {
+    const addr = normalizeAddress(address);
+    if (deps.mode() !== "live") {
+      const result = await resolveCheck(chain, addr, undefined, options);
+      if (!result.ok) return null;
+      const { symbol, verdict, stale, history, stats } = result.data;
+      return { chain, address: addr, symbol, verdict, stale, history, volumeUsd: stats.volume24hUsd };
+    }
+    let read = peekLean(chain, addr);
+    if (!read) {
+      const exempt = isFeatured(chain, addr);
+      if (deps.gate && !deps.gate.admit(options.client ?? "anon", deps.now(), exempt)) return null;
+      read = await leanRead(chain, addr);
+    }
+    if (!read) return null;
+    return {
+      chain,
+      address: addr,
+      symbol: read.symbol,
+      verdict: read.verdict,
+      stale: false,
+      history: [],
+      volumeUsd: read.stats.volume24hUsd,
+    };
+  }
+
+  function fromWalletSnapshot(snap: WalletSnapshot, stale: boolean): WalletRead {
+    const rows: WalletRow[] = walletRows(snap.holdings).map((row) => ({
+      ...row,
+      verdict: peekLean(row.chain, row.address)?.verdict ?? null,
+    }));
+    return {
+      kind: snap.kind,
+      address: snap.address,
+      rows,
+      readCount: rows.filter((row) => row.verdict !== null).length,
+      source: "snapshot",
+      stale,
+    };
+  }
+
+  /**
+   * A wallet: one balance call, then lean reads for the biggest holdings.
+   * One cold wallet spends one unit of the caller's cold budget and about
+   * 1 + 2 x WALLET_READS credits. Cached whole, like a check.
+   */
+  async function resolveWallet(
+    kind: WalletKind,
+    address: string,
+    options: ResolveOptions = {},
+  ): Promise<WalletResult> {
+    const addr = kind === "evm" ? address.toLowerCase() : address;
+    const saved = deps.getWalletSnapshot?.(kind, addr) ?? null;
+    if (deps.mode() !== "live" || !deps.walletBalance) {
+      return saved
+        ? { ok: true, data: fromWalletSnapshot(saved, false) }
+        : { ok: false, error: { code: "not_in_snapshot", message: WALLET_NOT_IN_DEMO } };
+    }
+
+    const key = `wallet:${kind}:${addr}`;
+    const cached = wallets.get<WalletResult>(key, deps.now());
+    if (cached) return cached;
+    const pending = walletInflight.get(key);
+    if (pending) return pending;
+    if (deps.gate && !deps.gate.admit(options.client ?? "anon", deps.now(), false)) {
+      return saved
+        ? { ok: true, data: fromWalletSnapshot(saved, true) }
+        : { ok: false, error: { code: "busy", message: LIVE_BUSY } };
+    }
+
+    const balanceFn = deps.walletBalance;
+    const request = (async (): Promise<WalletResult> => {
+      const balance = await balanceFn(kind, addr);
+      if (!balance.ok) {
+        if (saved) return { ok: true, data: fromWalletSnapshot(saved, true) };
+        return { ok: false, error: liveError(balance.error.code) };
+      }
+      const top = walletRows(balance.data);
+      const reads = await Promise.all(
+        top.map((row, index) =>
+          index < WALLET_READS
+            ? leanRead(row.chain, row.address)
+            : Promise.resolve(peekLean(row.chain, row.address)),
+        ),
+      );
+      const rows: WalletRow[] = top.map((row, index) => ({
+        ...row,
+        verdict: reads[index]?.verdict ?? null,
+      }));
+      return {
+        ok: true,
+        data: {
+          kind,
+          address: addr,
+          rows,
+          readCount: Math.min(top.length, WALLET_READS),
+          source: "live",
+          stale: false,
+        },
+      };
+    })().then((result) => {
+      const ttl = result.ok && !result.data.stale
+        ? (deps.resultTtlMs?.() ?? STALE_RESULT_TTL_MS)
+        : 2 * 60_000;
+      wallets.set(key, result, ttl, deps.now());
+      return result;
+    });
+    walletInflight.set(key, request);
+    try {
+      return await request;
+    } finally {
+      walletInflight.delete(key);
     }
   }
 
@@ -407,7 +594,14 @@ export function createResolver(deps: ResolveDeps) {
     return rows.filter((row): row is BoardRow => row !== null);
   }
 
-  return { resolveCheck, peekCheck, listFeaturedChecked, listBoard };
+  return {
+    resolveCheck,
+    peekCheck,
+    listFeaturedChecked,
+    listBoard,
+    resolveWatchRow,
+    resolveWallet,
+  };
 }
 
 /** Resolve within `ms`, or give the fallback. The work keeps running and
@@ -467,7 +661,14 @@ function backend(): FlowBackend {
   return dataMode() === "sim" ? sim : nansen;
 }
 
-export const { resolveCheck, peekCheck, listFeaturedChecked, listBoard } = createResolver({
+export const {
+  resolveCheck,
+  peekCheck,
+  listFeaturedChecked,
+  listBoard,
+  resolveWatchRow,
+  resolveWallet,
+} = createResolver({
   mode: () => dataMode(),
   // Real Nansen captures first; the sim fixture only for tokens not captured.
   getSnapshot: (chain, address) =>
@@ -489,4 +690,7 @@ export const { resolveCheck, peekCheck, listFeaturedChecked, listBoard } = creat
   history: (chain, address, now) =>
     dataMode() === "sim" ? simHistory(chain, address, now.getTime()) : [],
   now: () => Date.now(),
+  walletBalance: (kind, address) => nansen.walletBalance(kind, address),
+  getWalletSnapshot,
+  getLeanSnapshot,
 });

@@ -251,3 +251,24 @@ export const featuredOkSchema = z
     stale: z.boolean().optional(),
   })
   .strict();
+
+export const walletKindSchema = z.enum(["solana", "evm"]);
+
+/** Route params for /w/[kind]/[address]: the address must match its kind. */
+export const walletParamsSchema = z
+  .object({
+    kind: walletKindSchema,
+    address: z.string().trim().min(1).max(64),
+  })
+  .strict()
+  .refine(
+    (value) => (value.kind === "evm" ? EVM.test(value.address) : SOL.test(value.address)),
+    { message: "invalid_wallet" },
+  );
+
+export function walletKindFor(raw: string): "solana" | "evm" | null {
+  const value = raw.trim();
+  if (EVM.test(value)) return "evm";
+  if (SOL.test(value)) return "solana";
+  return null;
+}
