@@ -22,6 +22,7 @@ import {
   parseIsoDay,
   shiftMonth,
 } from "@/lib/date-grid";
+import { track } from "@/lib/analytics";
 import { flash } from "@/lib/toast";
 import type { Chain } from "@/lib/types";
 import { utcDayBounds } from "@/lib/validate";
@@ -102,6 +103,8 @@ export function DateField({
   }, [open]);
 
   function pick(iso: string) {
+    // Before the URL gets the date, so the event goes out; the date itself is never sent.
+    if (!ticket.entryDate) track("buy_date_added", { chain });
     commit({ ...ticket, entryDate: iso }, true);
     flash(TOAST_DATE);
     setOpen(false);

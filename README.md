@@ -72,6 +72,8 @@ Tune with `CACHE_TTL_SECONDS`, `DAILY_CALL_CAP`, `COLD_CHECKS_PER_CLIENT_HOUR`, 
 
 Set `DATA_MODE=snapshot` for a zero-cost public demo. For a public live deploy, set `DATA_MODE=live`, `NANSEN_API_KEY`, `ALLOWED_ORIGINS=https://your-app.vercel.app`, and keep `DAILY_CALL_CAP` at a number of credits you can afford to lose in a day. Never create a `NEXT_PUBLIC_NANSEN_*` variable.
 
+Analytics: Tracwell in private mode (no cookies, nothing stored in the browser), set up in `src/lib/analytics.ts`. It only runs on the public site, so local runs, previews, and forks send nothing, and Do Not Track or Global Privacy Control turns it off. Page views and events are skipped whenever the URL holds a wallet (`/w/`) or a buy date (`entryDate`), since Tracwell sends the page URL with each one. Events: `token_checked`, `buy_date_added`, `bag_added`, `wallet_check_started`. The public project key is in code; there are no analytics env variables.
+
 Search: `src/lib/site.ts` holds the public URL that canonical links, the sitemap, `robots.txt`, and share cards use, so change `SITE_URL` there when you deploy somewhere else. `robots.txt` keeps crawlers off `/api/`, `/t/`, and `/w/`, since each check or wallet page can spend live credits; link previews (X, Slack, Discord) may still fetch a shared check. `public/llms.txt` describes the app for AI assistants, and a test keeps its numbers in step with `verdict.ts`.
 
 ## Scripts

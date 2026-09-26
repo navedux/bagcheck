@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
   type CSSProperties,
@@ -28,10 +29,11 @@ import {
   clockLine,
   stabilityLine,
 } from "@/lib/copy";
+import { track } from "@/lib/analytics";
 import { truncateAddress } from "@/lib/format";
 import { bagSnapshot, parseBag, subscribeBag } from "@/lib/storage";
 import type { CheckedToken } from "@/lib/types";
-import { flipCount, runLengthDays } from "@/lib/verdict";
+import { flipCount, runLengthDays, signalFor } from "@/lib/verdict";
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD
@@ -126,6 +128,27 @@ export function CheckClient({
   const [run, setRun] = useState({ key: runKey, stage: 0 });
   const stage = run.key === runKey ? run.stage : 0;
 
+  // One token_checked per token shown. The saved bag is read directly, since
+  // the first render still has the server's empty snapshot.
+  const counted = useRef<string | null>(null);
+  useEffect(() => {
+    const key = `${checked.chain}:${checked.address}`;
+    if (counted.current === key) return;
+    counted.current = key;
+    const saved = parseBag(bagSnapshot(checked.chain, checked.address));
+    const holding =
+      checked.verdict !== "too-thin" && (Boolean(entryDate ?? saved.entryDate) || saved.held === true);
+    track("token_checked", {
+      chain: checked.chain,
+      symbol: checked.symbol,
+      flow: checked.verdict,
+      answer: signalFor(checked.verdict, holding),
+      holding,
+      data: checked.stale ? "saved" : "live",
+      saved_reason: checked.savedWhy ?? null,
+    });
+  }, [checked, entryDate]);
+
   useEffect(() => {
     const timers: number[] = [];
     const steps = [
@@ -157,6 +180,7 @@ export function CheckClient({
                 chain={checked.chain}
                 address={checked.address}
                 symbol={checked.symbol}
+                source="check"
                 labeled
               />
               <CopyLinkButton

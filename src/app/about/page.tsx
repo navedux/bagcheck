@@ -112,6 +112,22 @@ export default function AboutPage() {
           wallets did. It&apos;s not financial advice.
         </AboutRow>
 
+        <AboutRow title="Privacy">
+          No account and no wallet connect. Your bags and buy dates stay on this
+          device. Visits and a few finished actions (a token checked, with its
+          answer; a buy date added; a bag added; a wallet check started) are
+          counted with{" "}
+          <a
+            href="https://tracwell.app"
+            className="text-[var(--ink)] underline decoration-[var(--line)] underline-offset-4"
+          >
+            Tracwell
+          </a>{" "}
+          in private mode: no cookies and nothing stored on your device. Wallet
+          addresses and buy dates are never sent. Do Not Track or Global Privacy
+          Control turns it off.
+        </AboutRow>
+
         <AboutRow title="Modes">
           The footer says which one you&apos;re on. Live asks Nansen right now.
           Snapshot shows saved Nansen reads for the featured tokens. Sim makes up

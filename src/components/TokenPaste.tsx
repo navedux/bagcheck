@@ -29,6 +29,7 @@ import {
   walletKindFor,
 } from "@/lib/validate";
 import { staticCatalog } from "@/lib/watch-search";
+import { track } from "@/lib/analytics";
 
 export type PasteMode = "token" | "wallet";
 
@@ -88,6 +89,7 @@ export function TokenPaste({
         return;
       }
       setPending(true);
+      track("wallet_check_started", { kind: walletKind });
       const value = address.trim();
       router.push(`/w/${walletKind}/${walletKind === "evm" ? value.toLowerCase() : value}`);
       return;

@@ -23,6 +23,9 @@ importers:
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
+      tracwell:
+        specifier: 0.4.0
+        version: 0.4.0
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -2169,6 +2172,9 @@ packages:
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
+
+  tracwell@0.4.0:
+    resolution: {integrity: sha512-xKmQJxbc3K4/VKHBRjAFfXIhKwF6Q5LU4MNk/FNFfI2ctd5K/YhnOaAbTUD8otnpt+Q7hXFL1GwD2cc04wZeFA==}
 
   ts-api-utils@2.5.0:
     resolution: {integrity: sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA==}
@@ -4547,6 +4553,8 @@ snapshots:
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
+
+  tracwell@0.4.0: {}
 
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:

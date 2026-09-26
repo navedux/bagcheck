@@ -6,7 +6,7 @@ const csp = [
   "default-src 'self'",
   "img-src 'self' blob: data: https://img.logo.dev",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://collect.tracwell.app",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "object-src 'none'",

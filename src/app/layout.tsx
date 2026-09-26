@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { CSSProperties, ReactNode } from "react";
+import { Analytics } from "@/components/Analytics";
 import { Attribution } from "@/components/Attribution";
 import { SiteNav } from "@/components/SiteNav";
 import { ToastHost } from "@/components/ToastHost";
@@ -63,6 +64,7 @@ export default function RootLayout({
           </div>
         </footer>
         <ToastHost />
+        <Analytics />
       </body>
     </html>
   );

@@ -41,6 +41,8 @@ The tag says what is happening. The big answer depends on whether you already ho
 
 - No account and no wallet connection.
 - Your saved bags and buy dates stay in your browser, and in any link you choose to copy.
+- Visits and a few finished actions (a token checked, with its answer; a buy date added; a bag added; a wallet check started) are counted with Tracwell in private mode: no cookies and nothing stored on your device.
+- Wallet addresses and buy dates are never sent. Do Not Track or Global Privacy Control turns counting off.
 
 ## Links
 

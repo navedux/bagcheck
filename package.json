@@ -23,6 +23,7 @@
     "react-dom": "19.2.8",
     "remixicon": "^4.9.1",
     "server-only": "^0.0.1",
+    "tracwell": "0.4.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

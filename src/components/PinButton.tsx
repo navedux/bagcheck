@@ -17,6 +17,7 @@ import {
   subscribeFollow,
   toggleFollow,
 } from "@/lib/storage";
+import { track, type BagSource } from "@/lib/analytics";
 import { flash } from "@/lib/toast";
 import type { Chain } from "@/lib/types";
 
@@ -25,11 +26,13 @@ export function PinButton({
   address,
   symbol,
   labeled = false,
+  source = "list",
 }: {
   chain: Chain;
   address: string;
   symbol: string;
   labeled?: boolean;
+  source?: BagSource;
 }) {
   const followRaw = useSyncExternalStore(subscribeFollow, followSnapshot, () => "[]");
   const following = isFollowing(chain, address, followRaw);
@@ -53,7 +56,10 @@ export function PinButton({
           return;
         }
         const result = addFollow({ chain, address, symbol });
-        if (result === "added") flash(TOAST_FOLLOW);
+        if (result === "added") {
+          flash(TOAST_FOLLOW);
+          track("bag_added", { chain, from: source });
+        }
         else if (result === "full") flash(TOAST_FOLLOW_FULL);
         else if (result === "failed") flash(TOAST_FOLLOW_FAIL);
       }}

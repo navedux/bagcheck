@@ -50,6 +50,7 @@ import {
   parseCatalog,
   staticCatalog,
 } from "@/lib/watch-search";
+import { track } from "@/lib/analytics";
 
 type LoadState = "loading" | "ok" | "fallback";
 
@@ -170,7 +171,9 @@ export function WatchAddModal({ onClose }: { onClose: () => void }) {
       report("full", viaPaste);
       return;
     }
-    report(addFollow({ chain, address, symbol }), viaPaste);
+    const result = addFollow({ chain, address, symbol });
+    if (result === "added") track("bag_added", { chain, from: viaPaste ? "paste" : "search" });
+    report(result, viaPaste);
   }
 
   function dropToken(chain: Chain, address: string, symbol: string) {
