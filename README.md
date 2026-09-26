@@ -4,12 +4,13 @@
 
 **[Try it live at getbagcheck.vercel.app](https://getbagcheck.vercel.app)**. No sign-up, no wallet connect.
 
-| Demo (0:43) | Walkthrough with voice (1:42) |
-| --- | --- |
-| [![Bagcheck demo film](public/media/bagcheck-demo.jpg)](https://getbagcheck.vercel.app/media/bagcheck-demo.mp4) | [![Bagcheck walkthrough](public/media/bagcheck-walkthrough.jpg)](https://getbagcheck.vercel.app/media/bagcheck-walkthrough.mp4) |
-| The product in 43 seconds. | Every step, on saved demo data. |
+https://github.com/user-attachments/assets/99ddb653-5fd1-4d3a-9bf3-cd0e412abdd6
 
-Click a poster to play it in your browser. The files are in [`public/media/`](public/media).
+The product in 43 seconds. For every step, with voice, watch the [1:42 walkthrough](https://getbagcheck.vercel.app/media/bagcheck-walkthrough.mp4):
+
+<a href="https://getbagcheck.vercel.app/media/bagcheck-walkthrough.mp4"><img src="public/media/bagcheck-walkthrough.jpg" alt="Bagcheck walkthrough with voice, 1:42" width="560"></a>
+
+Both videos are also in [`public/media/`](public/media).
 
 Powered by [Nansen API](https://nsn.ai/naved) (referral link). Descriptive onchain data, not financial advice. An independent project built for a Nansen buildathon, not an official Nansen product.
 
