@@ -29,3 +29,14 @@ export function getLiveSnapshot(chain: Chain, address: string): TokenSnapshot | 
 }
 
 export const LIVE_SNAPSHOT_COUNT = ROWS.length;
+
+const STABLES = new Set(["USDC", "USDT", "DAI", "USDS", "PYUSD"]);
+
+/** The saved reads worth opening when live checks are spent (stablecoins left out). */
+export function listLiveSnapshot(): Array<{ chain: Chain; address: string; symbol: string }> {
+  return ROWS.filter((row) => !STABLES.has(row.symbol.toUpperCase())).map((row) => ({
+    chain: row.chain,
+    address: row.address,
+    symbol: row.symbol,
+  }));
+}

@@ -1,16 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { TRY_TOKENS } from "../../data/featured";
+import { savedHref, useLivePaused } from "@/components/LivePaused";
 import { TokenMark } from "@/components/TokenMark";
 import { HOME_OR, WATCH_ADD, WATCH_HEAD, WATCH_LIST_EMPTY } from "@/lib/copy";
 import { FOLLOW_LIMIT } from "@/lib/validate";
 
 export function TryChips() {
+  const paused = useLivePaused();
   return (
     <ul className="mt-5 flex flex-wrap gap-2">
       {TRY_TOKENS.map((token) => (
         <li key={`${token.chain}-${token.address}`}>
-          <Link href={`/t/${token.chain}/${token.address}`} className="try-chip">
+          <Link href={savedHref(`/t/${token.chain}/${token.address}`, paused)} className="try-chip">
             <TokenMark symbol={token.symbol} />
             <span className="text-[15px] font-medium">{token.symbol}</span>
             <span className="caption capitalize">{token.chain}</span>

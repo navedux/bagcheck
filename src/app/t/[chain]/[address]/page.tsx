@@ -1,10 +1,13 @@
 import { headers } from "next/headers";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { CheckClient } from "@/components/CheckClient";
+import { hoursUntilReset, SavedReads } from "@/components/SavedReads";
 import {
   HOME_AGAIN,
   missingCopy,
   missingKindFromCode,
+  outOfCreditsLine,
   type MissingKind,
 } from "@/lib/copy";
 import { truncateAddress } from "@/lib/format";
@@ -12,11 +15,11 @@ import { allowRequest, clientKeyFromHeaders } from "@/lib/rate-limit";
 import { resolveCheck } from "@/lib/resolve-check";
 import { sanitizeAddress } from "@/lib/sanitize";
 import { CHAINS, type Chain } from "@/lib/types";
-import { addressSchema, entryDateSchema, normalizeAddress } from "@/lib/validate";
+import { addressSchema, entryDateSchema, normalizeAddress, savedParamSchema } from "@/lib/validate";
 
 type PageProps = {
   params: Promise<{ chain: string; address: string }>;
-  searchParams: Promise<{ entryDate?: string }>;
+  searchParams: Promise<{ entryDate?: string; saved?: string }>;
 };
 
 function labelOf(value: string): string {
@@ -49,20 +52,25 @@ export default async function CheckPage({ params, searchParams }: PageProps) {
 
   const entryParsed = entryDateSchema.safeParse(query.entryDate);
   const entryDate = entryParsed.success ? entryParsed.data : undefined;
+  const saved = savedParamSchema.safeParse(query.saved).success;
   const result = await resolveCheck(
     parsedChain,
     normalizeAddress(parsedAddress.data),
     entryDate,
-    { client },
+    { client, saved },
   );
 
   if (!result.ok) {
+    const kind = missingKindFromCode(result.error.code);
+    const offerSaved = kind === "credits" || kind === "not-saved";
     return (
       <Missing
         tokenLabel={truncateAddress(normalizeAddress(parsedAddress.data))}
-        kind={missingKindFromCode(result.error.code)}
-        reason={result.error.message}
-      />
+        kind={kind}
+        reason={kind === "credits" ? outOfCreditsLine(hoursUntilReset()) : result.error.message}
+      >
+        {offerSaved ? <SavedReads /> : null}
+      </Missing>
     );
   }
 
@@ -79,10 +87,12 @@ function Missing({
   tokenLabel,
   kind,
   reason,
+  children,
 }: {
   tokenLabel: string;
   kind: MissingKind;
   reason?: string;
+  children?: ReactNode;
 }) {
   const copy = missingCopy(kind);
   return (
@@ -92,6 +102,7 @@ function Missing({
       </p>
       <h1 className="display mt-4 max-w-[12ch]">{copy.title}</h1>
       <p className="caption mt-4 max-w-md">{reason ?? copy.reason}</p>
+      {children}
       <p className="mt-8">
         <Link
           href="/"

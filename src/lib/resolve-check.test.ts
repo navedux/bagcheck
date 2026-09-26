@@ -8,6 +8,7 @@ import type {
   Chain,
   CohortFlows,
   DataMode,
+  TokenSnapshot,
   TokenStats,
   TraderPrint,
 } from "./types";
@@ -438,5 +439,76 @@ describe("live mode never passes saved reads off as live", () => {
     } else {
       expect(row).toBeNull();
     }
+  });
+});
+
+describe("out of credits", () => {
+  const PEPE = "0x6982508145454ce325ddbe47a25d4ec3d2311933";
+  const OTHER = `0x${"1".repeat(40)}`;
+  const saved: TokenSnapshot = {
+    chain: "ethereum",
+    address: PEPE,
+    symbol: "PEPE",
+    stats: liquid,
+    flows1d: stillBidFlows,
+    flows1h: stillBidFlows,
+    traders: { buyers: [], sellers: [] },
+    earlyExit: null,
+    daily: [],
+  };
+  const spent = (code: "budget_exhausted" | "account_blocked"): CallResult<never> => ({
+    ok: false,
+    error: { code, path: "tgm/token-information", status: null },
+  });
+
+  function live(info: CallResult<{ symbol: string | null; stats: TokenStats }>) {
+    let infoCalls = 0;
+    const r = createResolver({
+      mode: () => "live",
+      getSnapshot: (_c, address) => (address === PEPE ? saved : null),
+      flowIntelligence: async () => ok(stillBidFlows),
+      tokenInformation: async () => {
+        infoCalls += 1;
+        return info;
+      },
+      whoBoughtSold: async () => ok([]),
+      historicalFlowSummary: async () => ok(stillBidFlows),
+      tokenScreener: async () => ok([]),
+      getBoard: () => [],
+      history: () => [],
+      now: () => Date.parse("2026-09-26T12:00:00.000Z"),
+    });
+    return { ...r, infoCalls: () => infoCalls };
+  }
+
+  it("says today's credits are spent, ours or Nansen's, when there's no saved read", async () => {
+    for (const code of ["budget_exhausted", "account_blocked"] as const) {
+      const result = await live(spent(code)).resolveCheck("ethereum", OTHER);
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.code).toBe("out_of_credits");
+    }
+  });
+
+  it("falls back to the saved read and says it's because credits are spent", async () => {
+    const result = await live(spent("budget_exhausted")).resolveCheck("ethereum", PEPE);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.stale).toBe(true);
+      expect(result.data.savedWhy).toBe("credits");
+    }
+  });
+
+  it("keeps the unreachable reason when Nansen is just down", async () => {
+    const result = await live(fail("upstream")).resolveCheck("ethereum", PEPE);
+    expect(result.ok && result.data.savedWhy).toBe("offline");
+  });
+
+  it("serves saved data on request without asking Nansen", async () => {
+    const r = live(ok({ symbol: "PEPE", stats: liquid }));
+    const result = await r.resolveCheck("ethereum", PEPE, undefined, { saved: true });
+    expect(result.ok && result.data.savedWhy).toBe("sample");
+    const missing = await r.resolveCheck("ethereum", OTHER, undefined, { saved: true });
+    expect(!missing.ok && missing.error.code).toBe("not_saved");
+    expect(r.infoCalls()).toBe(0);
   });
 });

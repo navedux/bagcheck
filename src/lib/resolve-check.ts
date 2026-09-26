@@ -35,6 +35,7 @@ import {
   type TokenStats,
   type TraderPrint,
   type TraderSides,
+  type SavedWhy,
   type Verdict,
   type VerdictDay,
 } from "./types";
@@ -44,6 +45,8 @@ import {
   LIVE_BUSY,
   LIVE_NOT_FOUND,
   LIVE_UNAVAILABLE,
+  OUT_OF_CREDITS_LINE,
+  SAVED_MISSING_LINE,
   WALLET_NOT_IN_DEMO,
 } from "./copy";
 import { normalizeAddress } from "./validate";
@@ -142,7 +145,16 @@ type LeanRead = { symbol: string; verdict: Verdict; stats: TokenStats };
 export type ResolveOptions = {
   /** Rate-limit identity of the caller, for the cold-check gate. */
   client?: string;
+  /** Serve saved data only: no gate, no credits. For `?saved=1`. */
+  saved?: boolean;
 };
+
+/** Nansen codes that mean today's credits are spent: ours or Nansen's own. */
+function creditsSpent(code: string): boolean {
+  return code === "budget_exhausted" || code === "account_blocked";
+}
+
+const NOT_SAVED = { code: "not_saved", message: SAVED_MISSING_LINE } as const;
 
 const STALE_RESULT_TTL_MS = 60_000;
 const DEFAULT_EARLY_EXIT_BUDGET_MS = 2_500;
@@ -166,6 +178,9 @@ function isUnknownToken(info: { symbol: string | null; stats: TokenStats }): boo
 }
 
 function liveError(code: string): ResolveError {
+  if (creditsSpent(code)) {
+    return { code: "out_of_credits", message: OUT_OF_CREDITS_LINE };
+  }
   if (code === "not_found") {
     return { code, message: LIVE_NOT_FOUND };
   }
@@ -191,6 +206,15 @@ export function createResolver(deps: ResolveDeps) {
     options: ResolveOptions = {},
   ): Promise<ResolveResult> {
     const addr = normalizeAddress(address);
+    if (options.saved) {
+      const snap = deps.getSnapshot(chain, addr);
+      return snap
+        ? {
+            ok: true,
+            data: { ...checkedToken(snap, entryDate, new Date(deps.now())), stale: true, savedWhy: "sample" },
+          }
+        : { ok: false, error: NOT_SAVED };
+    }
     if (deps.mode() !== "live") return computeCheck(chain, addr, entryDate);
 
     const key = `${chain}:${addr}:${entryDate ?? ""}`;
@@ -330,7 +354,7 @@ export function createResolver(deps: ResolveDeps) {
     };
   }
 
-  function fromWalletSnapshot(snap: WalletSnapshot, stale: boolean): WalletRead {
+  function fromWalletSnapshot(snap: WalletSnapshot, stale: boolean, savedWhy?: SavedWhy): WalletRead {
     const rows: WalletRow[] = walletRows(snap.holdings).map((row) => ({
       ...row,
       verdict: (peekCached(row.chain, row.address) ?? peekSaved(row.chain, row.address))?.verdict ?? null,
@@ -342,6 +366,7 @@ export function createResolver(deps: ResolveDeps) {
       readCount: rows.filter((row) => row.verdict !== null).length,
       source: "snapshot",
       stale,
+      ...(savedWhy ? { savedWhy } : {}),
     };
   }
 
@@ -357,6 +382,11 @@ export function createResolver(deps: ResolveDeps) {
   ): Promise<WalletResult> {
     const addr = kind === "evm" ? address.toLowerCase() : address;
     const saved = deps.getWalletSnapshot?.(kind, addr) ?? null;
+    if (options.saved) {
+      return saved
+        ? { ok: true, data: fromWalletSnapshot(saved, true, "sample") }
+        : { ok: false, error: NOT_SAVED };
+    }
     if (deps.mode() !== "live" || !deps.walletBalance) {
       return saved
         ? { ok: true, data: fromWalletSnapshot(saved, false) }
@@ -378,7 +408,10 @@ export function createResolver(deps: ResolveDeps) {
     const request = (async (): Promise<WalletResult> => {
       const balance = await balanceFn(kind, addr);
       if (!balance.ok) {
-        if (saved) return { ok: true, data: fromWalletSnapshot(saved, true) };
+        if (saved) {
+          const why = creditsSpent(balance.error.code) ? "credits" : "offline";
+          return { ok: true, data: fromWalletSnapshot(saved, true, why) };
+        }
         return { ok: false, error: liveError(balance.error.code) };
       }
       const top = walletRows(balance.data);
@@ -450,7 +483,8 @@ export function createResolver(deps: ResolveDeps) {
     const info = await deps.tokenInformation(chain, addr);
     if (!info.ok) {
       if (snap) {
-        return { ok: true, data: { ...checkedToken(snap, entryDate, now), stale: true } };
+        const savedWhy = creditsSpent(info.error.code) ? "credits" : "offline";
+        return { ok: true, data: { ...checkedToken(snap, entryDate, now), stale: true, savedWhy } };
       }
       return { ok: false, error: liveError(info.error.code) };
     }
@@ -540,7 +574,8 @@ export function createResolver(deps: ResolveDeps) {
     }
 
     if (snap) {
-      return { ok: true, data: { ...checkedToken(snap, entryDate, now), stale: true } };
+      const savedWhy = !flows1d.ok && creditsSpent(flows1d.error.code) ? "credits" : "offline";
+      return { ok: true, data: { ...checkedToken(snap, entryDate, now), stale: true, savedWhy } };
     }
 
     return {

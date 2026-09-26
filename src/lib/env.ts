@@ -29,6 +29,17 @@ export function nansenBaseAllowed(value: string): boolean {
   }
 }
 
+/** The KV token rides in a header, so it only goes over https (or to this machine, for tests). */
+function kvUrlAllowed(value: string): boolean {
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:") return true;
+    return url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1");
+  } catch {
+    return false;
+  }
+}
+
 const schema = z.object({
   DATA_MODE: z.enum(["snapshot", "sim", "live"]).default("sim"),
   NANSEN_API_KEY: z.string().optional(),
@@ -43,6 +54,11 @@ const schema = z.object({
   COLD_CHECKS_PER_CLIENT_HOUR: z.coerce.number().int().positive().default(10),
   COLD_CHECKS_PER_HOUR: z.coerce.number().int().positive().default(60),
   ALLOWED_ORIGINS: z.string().default("http://localhost:3000"),
+  /** Credits per UTC day across every instance; needs the KV store below. Defaults to DAILY_CALL_CAP. */
+  GLOBAL_DAILY_CREDIT_CAP: z.coerce.number().int().positive().optional(),
+  /** Upstash Redis (Vercel KV) REST endpoint for the shared credit budget. https only, or localhost. */
+  KV_REST_API_URL: z.string().url().refine(kvUrlAllowed, "kv_url_https").optional(),
+  KV_REST_API_TOKEN: z.string().min(1).optional(),
 });
 
 function loadEnv() {
@@ -56,6 +72,9 @@ function loadEnv() {
     COLD_CHECKS_PER_CLIENT_HOUR: blank(process.env.COLD_CHECKS_PER_CLIENT_HOUR) ?? 10,
     COLD_CHECKS_PER_HOUR: blank(process.env.COLD_CHECKS_PER_HOUR) ?? 60,
     ALLOWED_ORIGINS: blank(process.env.ALLOWED_ORIGINS),
+    GLOBAL_DAILY_CREDIT_CAP: blank(process.env.GLOBAL_DAILY_CREDIT_CAP),
+    KV_REST_API_URL: blank(process.env.KV_REST_API_URL) ?? blank(process.env.UPSTASH_REDIS_REST_URL),
+    KV_REST_API_TOKEN: blank(process.env.KV_REST_API_TOKEN) ?? blank(process.env.UPSTASH_REDIS_REST_TOKEN),
   });
 
   if (!parsed.success) {

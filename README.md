@@ -58,14 +58,15 @@ The key never reaches the browser, and a public live deploy cannot be used to dr
 - Whole checks are cached per token and date. Identical in-flight checks and Nansen calls share one request.
 - Unknown tokens are remembered for 30 minutes, so junk addresses cost once.
 - New (uncached) tokens are capped per client per hour and per server per hour. Featured tokens skip the per-client cap. Past the cap you get the saved read or a busy page.
-- A daily credit cap stops outbound calls.
+- A daily credit cap stops outbound calls. Connect Upstash Redis (Vercel KV) and it holds across every instance and restart, not just one: each call adds its credits to one shared daily total first, and is refused past the cap. If the store can't be reached, live calls are refused rather than risk spend.
+- When today's credits are spent, pages say so plainly ("Out of live checks for today", with the time until midnight UTC) and offer saved reads. Saved reads (`?saved=1`) and the sample wallet never call Nansen.
 - The catalog and board endpoints never call Nansen live.
 - A cold wallet costs about 11 credits and one unit of the caller's hourly budget. The home list uses the same two-call read (2 credits, not 7), and reuses whatever a wallet already read.
 - Unknown tokens stop after one call. Failed checks are cached briefly, so retries are free.
 - Origin check, per-IP rate limit (the Vercel IP header is trusted only on Vercel), CSP, HSTS, frame blocking, and Zod on every input.
 - No image proxy: logos load straight from Logo.dev, so `/_next/image` cannot spend your quota.
 
-Tune with `CACHE_TTL_SECONDS`, `DAILY_CALL_CAP`, `COLD_CHECKS_PER_CLIENT_HOUR`, `COLD_CHECKS_PER_HOUR`, and `RATE_LIMIT_PER_MIN`. The guards are in-memory per instance. For a hard cap across instances, add a Vercel Firewall rate-limit rule on `/t/*` and `/api/*`.
+Tune with `CACHE_TTL_SECONDS`, `DAILY_CALL_CAP`, `COLD_CHECKS_PER_CLIENT_HOUR`, `COLD_CHECKS_PER_HOUR`, and `RATE_LIMIT_PER_MIN`. Without a KV store these are per instance. For one cap across all instances, add Upstash Redis from the Vercel Marketplace (it sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`); `DAILY_CALL_CAP` then applies globally, or set `GLOBAL_DAILY_CREDIT_CAP` to a different number. A Vercel Firewall rate-limit rule on `/t/*`, `/w/*`, and `/api/*` adds another layer.
 
 ## Deploy (Vercel)
 

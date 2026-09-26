@@ -140,11 +140,15 @@ export type TokenSnapshot = {
   daily: DayFlows[];
 };
 
+/** Why a read is saved rather than live: Nansen unreachable, today's credits spent, or saved data asked for. */
+export type SavedWhy = "offline" | "credits" | "sample";
+
 export type CheckedToken = TokenSnapshot & {
   verdict: Verdict;
   breakdown: ScoreBreakdown;
   source: "live" | "snapshot" | "sim";
   stale: boolean;
+  savedWhy?: SavedWhy;
   since: SinceRead | null;
   history: VerdictDay[];
 };
@@ -216,4 +220,5 @@ export type WalletRead = {
   readCount: number;
   source: DataMode;
   stale: boolean;
+  savedWhy?: SavedWhy;
 };

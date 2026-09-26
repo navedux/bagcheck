@@ -3,19 +3,21 @@ import { VERDICT_ICON, VERDICT_TONE } from "@/lib/brand";
 import {
   SIGNAL_FORK_HINT,
   SIGNAL_LABEL,
-  STALE_REASON,
   VERDICT_LABEL,
+  staleReason,
   reasonFor,
 } from "@/lib/copy";
-import type { Verdict } from "@/lib/types";
+import type { SavedWhy, Verdict } from "@/lib/types";
 import { signalFor } from "@/lib/verdict";
 
 export function FlowMark({
   verdict,
   stale,
+  savedWhy,
 }: {
   verdict: Verdict;
   stale?: boolean;
+  savedWhy?: SavedWhy;
 }) {
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -29,9 +31,9 @@ export function FlowMark({
       {stale ? (
         <span
           className="border border-[var(--line)] bg-[var(--surface)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--muted)]"
-          title={STALE_REASON}
+          title={staleReason(savedWhy)}
         >
-          stale
+          {savedWhy === "credits" || savedWhy === "sample" ? "saved" : "stale"}
         </span>
       ) : null}
     </div>

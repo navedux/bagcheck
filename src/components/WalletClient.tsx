@@ -8,7 +8,7 @@ import { VERDICT_TONE } from "@/lib/brand";
 import {
   COL_SIGNAL,
   SIGNAL_LABEL,
-  STALE_REASON,
+  staleReason,
   VERDICT_LABEL,
   WALLET_ADD_ALL,
   WALLET_ADDED_ALL,
@@ -76,7 +76,7 @@ export function WalletClient({ wallet }: { wallet: WalletRead }) {
           </button>
         ) : null}
       </div>
-      {wallet.stale ? <p className="caption mt-3">{STALE_REASON}</p> : null}
+      {wallet.stale ? <p className="caption mt-3">{staleReason(wallet.savedWhy)}</p> : null}
 
       <section className="mt-10">
         <div className="row-head row-4 row-wallet">

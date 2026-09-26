@@ -216,3 +216,63 @@ describe("nansen client credit guard", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("shared credit budget", () => {
+  const PEPE = "0x6982508145454ce325ddbe47a25d4ec3d2311933";
+
+  function withBudget(fetchImpl: typeof fetch, reserve: "ok" | "spent" | "unverified") {
+    const budget = {
+      reserve: vi.fn(async () => reserve),
+      refund: vi.fn(async () => undefined),
+      spent: vi.fn(async () => reserve === "spent"),
+    };
+    const api = createNansenClient({
+      fetch: fetchImpl,
+      getEnv: () => liveEnv,
+      cache: new MemoryCache(),
+      ledger: new Ledger(false),
+      sleep: async () => undefined,
+      now: () => Date.parse("2026-09-19T12:00:00.000Z"),
+      budget,
+    });
+    return { api, budget };
+  }
+
+  it("refuses before calling Nansen once today's shared budget is spent", async () => {
+    const fetchImpl = vi.fn();
+    const { api } = withBudget(fetchImpl as unknown as typeof fetch, "spent");
+    const result = await api.flowIntelligence("ethereum", PEPE, "1d");
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("budget_exhausted");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("refuses when the shared budget can't be checked", async () => {
+    const fetchImpl = vi.fn();
+    const { api } = withBudget(fetchImpl as unknown as typeof fetch, "unverified");
+    const result = await api.flowIntelligence("ethereum", PEPE, "1d");
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("budget_unverified");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("hands the credit back when Nansen fails without charging", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse(503, { message: "down" }));
+    const { api, budget } = withBudget(fetchImpl as unknown as typeof fetch, "ok");
+    const result = await api.flowIntelligence("ethereum", PEPE, "1d");
+    expect(result.ok).toBe(false);
+    expect(budget.reserve).toHaveBeenCalledWith(1);
+    expect(budget.refund).toHaveBeenCalledWith(1);
+  });
+
+  it("reserves once for identical calls in flight", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse(200, flowBody));
+    const { api, budget } = withBudget(fetchImpl as unknown as typeof fetch, "ok");
+    await Promise.all([
+      api.flowIntelligence("ethereum", PEPE, "1d"),
+      api.flowIntelligence("ethereum", PEPE, "1d"),
+    ]);
+    expect(budget.reserve).toHaveBeenCalledTimes(1);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+});

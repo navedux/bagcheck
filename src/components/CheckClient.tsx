@@ -22,7 +22,7 @@ import { FlowMark, SignalHead, SignalWhy } from "@/components/VerdictChip";
 import {
   COL_STRIP,
   SIGNAL_FORK_HINT,
-  STALE_REASON,
+  staleReason,
   WALLET_HELD_HINT,
   WINDOW_RAIL,
   clockLine,
@@ -184,7 +184,7 @@ export function CheckClient({
             entryDate={thin ? undefined : resolvedDate}
           />
           {thin ? null : (
-            <FlowMark verdict={checked.verdict} stale={checked.stale} />
+            <FlowMark verdict={checked.verdict} stale={checked.stale} savedWhy={checked.savedWhy} />
           )}
         </div>
       </CheckBeat>
@@ -193,7 +193,7 @@ export function CheckClient({
         {thin ? (
           <div>
             <SignalWhy verdict={checked.verdict} />
-            {checked.stale ? <p className="caption mt-3">{STALE_REASON}</p> : null}
+            {checked.stale ? <p className="caption mt-3">{staleReason(checked.savedWhy)}</p> : null}
           </div>
         ) : (
           <div>
@@ -213,7 +213,7 @@ export function CheckClient({
                   )}
                 </div>
                 {checked.since ? <SinceLine since={checked.since} /> : null}
-                {checked.stale ? <p className="caption mt-3">{STALE_REASON}</p> : null}
+                {checked.stale ? <p className="caption mt-3">{staleReason(checked.savedWhy)}</p> : null}
               </div>
               <ScoreMeters
                 breakdown={checked.breakdown}

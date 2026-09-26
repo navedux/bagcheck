@@ -15,6 +15,9 @@ export const addressSchema = z
     message: "invalid_address",
   });
 
+/** `?saved=1`: show saved data instead of a live check. Anything else means live. */
+export const savedParamSchema = z.literal("1");
+
 export const entryDateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "invalid_date")

@@ -2,6 +2,7 @@ import "server-only";
 
 import { env, type Env } from "./env";
 import { MemoryCache, cacheKey, ttlMs } from "./cache";
+import { createGlobalBudget, upstashStore, type GlobalBudget } from "./global-budget";
 import { Ledger } from "./ledger";
 import {
   BALANCE_PATH,
@@ -54,6 +55,7 @@ export type NansenError = {
     | "unregistered_endpoint"
     | "snapshot_only"
     | "budget_exhausted"
+    | "budget_unverified"
     | "account_blocked"
     | "auth"
     | "rate_limited"
@@ -78,6 +80,8 @@ export type NansenDeps = {
   ledger: Ledger;
   sleep: (ms: number) => Promise<void>;
   now: () => number;
+  /** The shared daily credit budget across instances, when a KV store is set. */
+  budget?: GlobalBudget | null;
 };
 
 const TIMEOUT_MS = 15_000;
@@ -208,7 +212,18 @@ export function createNansenClient(deps: NansenDeps) {
       return { ok: false, error: { code: "budget_exhausted", path, status: null } };
     }
 
+    const credits = CREDITS[path];
     const request = (async (): Promise<CallResult<T>> => {
+      // The shared budget is checked inside the request, so identical calls
+      // still dedupe on `inflight` before anything awaits.
+      const shared = deps.budget ? await deps.budget.reserve(credits) : "ok";
+      if (shared !== "ok") {
+        refund(credits);
+        return {
+          ok: false,
+          error: { code: shared === "spent" ? "budget_exhausted" : "budget_unverified", path, status: null },
+        };
+      }
       const result = await requestWithRetry(path, body, parse);
       if (result.ok) {
         deps.cache.set(key, result.data, ttlMs, deps.now());
@@ -224,7 +239,8 @@ export function createNansenClient(deps: NansenDeps) {
         result.error.code === "upstream" ||
         result.error.code === "schema_mismatch"
       ) {
-        refund(CREDITS[path]);
+        refund(credits);
+        await deps.budget?.refund(credits);
       }
       return result;
     })();
@@ -402,6 +418,11 @@ export function createNansenClient(deps: NansenDeps) {
   }
 
   return {
+    /** True once this instance can't afford even a one-credit call today, or Nansen said the account is out. */
+    spentToday(): boolean {
+      if (outboundStopped === "account_blocked") return true;
+      return usedDay === dayKey(deps.now()) && usedToday + 1 > deps.getEnv().DAILY_CALL_CAP;
+    },
     async flowIntelligence(
       chain: Chain,
       address: string,
@@ -566,6 +587,23 @@ const persistLedger =
 
 const defaultLedger = new Ledger(persistLedger);
 
+const kv =
+  env.KV_REST_API_URL && env.KV_REST_API_TOKEN
+    ? upstashStore(env.KV_REST_API_URL, env.KV_REST_API_TOKEN)
+    : null;
+
+/**
+ * Null until a KV store is connected. Then GLOBAL_DAILY_CREDIT_CAP (or, if
+ * unset, DAILY_CALL_CAP) holds across every instance, not just this one.
+ */
+export const globalBudget = kv
+  ? createGlobalBudget({
+      store: kv,
+      cap: () => env.GLOBAL_DAILY_CREDIT_CAP ?? env.DAILY_CALL_CAP,
+      now: () => Date.now(),
+    })
+  : null;
+
 export const nansen = createNansenClient({
   fetch,
   getEnv: () => env,
@@ -573,6 +611,14 @@ export const nansen = createNansenClient({
   ledger: defaultLedger,
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   now: () => Date.now(),
+  budget: globalBudget,
 });
+
+/** Whether today's live checks are spent: on this instance, or across all of them. */
+export async function liveChecksSpent(): Promise<boolean> {
+  if (env.DATA_MODE !== "live") return false;
+  if (nansen.spentToday()) return true;
+  return (await globalBudget?.spent()) === true;
+}
 
 export const ledger = defaultLedger;

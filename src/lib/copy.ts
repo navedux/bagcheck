@@ -5,6 +5,7 @@ import type {
   CohortFlows,
   EarlyExit,
   FlowCohort,
+  SavedWhy,
   ScoreBreakdown,
   Signal,
   TokenStats,
@@ -117,6 +118,33 @@ export const LIVE_BUSY =
 
 export const STALE_REASON =
   "Couldn't reach Nansen, so this is the last saved read.";
+export const STALE_CREDITS = "Today's live checks are used up, so this is the last saved read.";
+export const SAVED_SAMPLE = "Saved data, not live. It uses no credits.";
+
+/** The line under a saved read, by why it isn't live. */
+export function staleReason(why?: SavedWhy): string {
+  if (why === "credits") return STALE_CREDITS;
+  if (why === "sample") return SAVED_SAMPLE;
+  return STALE_REASON;
+}
+
+export const OUT_OF_CREDITS_HEAD = "Out of live checks for today.";
+export const OUT_OF_CREDITS_LINE =
+  "Bagcheck reads Nansen live on a shared daily budget, and today's credits are spent. Live checks come back at midnight UTC.";
+
+/** The out-of-credits line with how long until midnight UTC. */
+export function outOfCreditsLine(hoursLeft: number): string {
+  const when = hoursLeft <= 1 ? "in under an hour" : `in about ${hoursLeft} hours`;
+  return `Bagcheck reads Nansen live on a shared daily budget, and today's credits are spent. Live checks come back at midnight UTC, ${when}.`;
+}
+
+export const SAVED_TRY_HEAD = "Try it with saved data";
+export const SAVED_TRY_LINE = "Real Nansen reads we saved earlier. Opening them uses no credits.";
+export const SAVED_WALLET = "Sample wallet";
+export const SAVED_MISSING_HEAD = "No saved read for this one.";
+export const SAVED_MISSING_LINE = "Saved data covers a few tokens and one sample wallet. Pick one below.";
+export const LIVE_PAUSED = "Live checks are used up for today. They come back at midnight UTC.";
+export const LIVE_PAUSED_LINK = "Try it with saved data";
 
 export const HOME_EYEBROW = "Before you buy. While you hold.";
 export const HOME_HEAD = "Who's buying your bag?";
@@ -230,12 +258,16 @@ export type MissingKind =
   | "rate"
   | "not-found"
   | "busy"
+  | "credits"
+  | "not-saved"
   | "unavailable";
 
 export function missingKindFromCode(code: string): MissingKind {
   if (code === "not_in_snapshot") return "snapshot";
   if (code === "not_found") return "not-found";
   if (code === "busy") return "busy";
+  if (code === "out_of_credits") return "credits";
+  if (code === "not_saved") return "not-saved";
   return "unavailable";
 }
 
@@ -246,6 +278,8 @@ export function missingCopy(kind: MissingKind): { title: string; reason: string 
   if (kind === "not-found") return { title: MISSING_TOKEN_HEAD, reason: LIVE_NOT_FOUND };
   if (kind === "unavailable") return { title: MISSING_LIVE_HEAD, reason: LIVE_UNAVAILABLE };
   if (kind === "busy") return { title: BUSY_HEAD, reason: LIVE_BUSY };
+  if (kind === "credits") return { title: OUT_OF_CREDITS_HEAD, reason: OUT_OF_CREDITS_LINE };
+  if (kind === "not-saved") return { title: SAVED_MISSING_HEAD, reason: SAVED_MISSING_LINE };
   return { title: EMPTY_SNAPSHOT_HEAD, reason: EMPTY_SNAPSHOT_LINE };
 }
 
