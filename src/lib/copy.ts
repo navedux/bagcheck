@@ -66,7 +66,27 @@ export const VERDICT_TICK: Record<Verdict, string> = {
 };
 
 export const ATTRIBUTION_LABEL = "Powered by Nansen API";
-export const ATTRIBUTION_HREF = "https://nansen.ai";
+/** The author's Nansen referral link. It can pay out, so it is marked sponsored and says so next to it. */
+export const ATTRIBUTION_HREF = "https://nsn.ai/naved";
+export const REFERRAL_NOTE = "referral link";
+export const NOT_ADVICE = "Descriptive onchain data, not financial advice.";
+
+/** Search and share metadata. Plain claims only: what it reads, where, and that it isn't advice. */
+export const SITE_TITLE = "Bagcheck: who's buying your bag?";
+export const SITE_DESCRIPTION =
+  "Paste a token or a wallet and see who bought and sold it in the last 24 hours, from Nansen onchain data. Solana, Ethereum, and Base. Not financial advice.";
+export const SHARE_DESCRIPTION =
+  "Paste a token or a wallet. One straight answer from 24 hours of Nansen onchain flow.";
+export const ABOUT_TITLE = "How it reads a token";
+export const ABOUT_DESCRIPTION =
+  "How Bagcheck sizes 24 hours of Nansen wallet flow against a token's own volume, what each answer means, and where it stops. Not financial advice.";
+export const APP_FEATURES = [
+  "Who bought and sold a token in the last 24 hours",
+  "Smart traders, whales, new wallets, public figures, and exchanges, sized against daily volume",
+  "A separate answer if you already hold, from the day you bought",
+  "Checks a wallet's five biggest holdings",
+  "No sign-up and no wallet connect",
+] as const;
 
 /**
  * Footer mode label. In sim the data is generated locally, so the credit

@@ -4,7 +4,9 @@ import type { CSSProperties, ReactNode } from "react";
 import { Attribution } from "@/components/Attribution";
 import { SiteNav } from "@/components/SiteNav";
 import { ToastHost } from "@/components/ToastHost";
+import { SHARE_DESCRIPTION, SITE_DESCRIPTION, SITE_TITLE } from "@/lib/copy";
 import { modeLabel } from "@/lib/env";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "remixicon/fonts/remixicon.css";
 import "./globals.css";
 
@@ -21,18 +23,23 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bagcheck",
-  description: "Who's buying your bag? Paste a token or a wallet and see who bought and sold it in the last 24 hours, from Nansen.",
+  // Absolute share-card and canonical URLs on the public domain, whichever host served the page.
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  category: "finance",
   openGraph: {
-    title: "Bagcheck: who's buying your bag?",
-    description: "Paste a token or a wallet. One straight answer from 24 hours of Nansen onchain flow.",
-    siteName: "Bagcheck",
+    title: SITE_TITLE,
+    description: SHARE_DESCRIPTION,
+    siteName: SITE_NAME,
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bagcheck: who's buying your bag?",
-    description: "Paste a token or a wallet. One straight answer from 24 hours of Nansen onchain flow.",
+    title: SITE_TITLE,
+    description: SHARE_DESCRIPTION,
   },
 };
 

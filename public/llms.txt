@@ -1,0 +1,50 @@
+# Bagcheck
+
+> Bagcheck shows who bought and sold a crypto token in the last 24 hours, using onchain wallet data from the Nansen API, and sums it up in a couple of words. Paste a token address or a wallet on Solana, Ethereum, or Base. Descriptive onchain data, not financial advice.
+
+Bagcheck is free to use, with no sign-up and no wallet connect. It is an independent, open-source project built on the Nansen API for a Nansen buildathon. It is not an official Nansen product.
+
+## How it reads a token
+
+- It looks at five groups of wallets: smart traders, whales, new wallets, public figures, and exchanges.
+- Each group's net buying over the last 24 hours is measured against the token's own daily trading volume, so a large move on a big token and a small move on a small token can mean the same thing.
+- A group counts once its net flow passes 6% of the day's volume. Under 1% is quiet.
+- New-wallet flow bigger than a whole day's volume is usually transfers, not buying, so it is ignored.
+- Tokens heading to exchanges outweigh retail buying, because that usually means someone is selling.
+- Add the day you bought and it also reads everything since that day, up to 90 days back.
+- It also shows how many of the biggest sellers of the last 7 days were big buyers in the token's first 10 days.
+- Paste a wallet and it checks that wallet's five biggest holdings, each with its own answer.
+
+## Answers
+
+The tag says what is happening. The big answer depends on whether you already hold the token.
+
+| What's happening | Thinking of buying | Already holding |
+| --- | --- | --- |
+| Still buying | Looks good | Hold |
+| Retail rush | Wait | Hold |
+| Cashing out | Stay away | Time to go |
+| Mixed | Wait | Wait |
+| Quiet | Wait | Hold |
+| Too small | Can't tell | Can't tell |
+
+## Limits
+
+- Solana, Ethereum, and Base only.
+- Tokens under $25,000 in liquidity or $10,000 a day in volume are too small to read.
+- Buyers and sellers cover DEX trades only.
+- Nansen's whale and exchange tags start on 2025-03-11.
+- It describes what wallets did. It does not predict prices and is not financial advice.
+- Live checks are capped each day. When they run out, it shows saved reads and says so.
+
+## Privacy
+
+- No account and no wallet connection.
+- Your saved bags and buy dates stay in your browser, and in any link you choose to copy.
+
+## Links
+
+- [Bagcheck](https://getbagcheck.vercel.app/): paste a token or a wallet
+- [How it reads a token](https://getbagcheck.vercel.app/about): the method, the answers, and the limits
+- [Source code](https://github.com/navedux/bagcheck): the README covers setup and the credit guard
+- [Nansen](https://nsn.ai/naved): the data source (the author's referral link)

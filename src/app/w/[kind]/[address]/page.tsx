@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -18,6 +19,11 @@ import { allowRequest, clientKeyFromHeaders } from "@/lib/rate-limit";
 import { resolveWallet } from "@/lib/resolve-check";
 import { sanitizeAddress } from "@/lib/sanitize";
 import { savedParamSchema, walletParamsSchema } from "@/lib/validate";
+
+/** Crawlers are kept off by robots.txt (each visit can spend credits); this covers any that ignore it. */
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 type PageProps = {
   params: Promise<{ kind: string; address: string }>;

@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import type { CSSProperties, ReactNode } from "react";
+import { JsonLd } from "@/components/JsonLd";
 import { VERDICT_TONE } from "@/lib/brand";
-import { SIGNAL_LABEL, VERDICT_COPY, VERDICT_LABEL } from "@/lib/copy";
+import { ABOUT_DESCRIPTION, ABOUT_TITLE, SIGNAL_LABEL, VERDICT_COPY, VERDICT_LABEL } from "@/lib/copy";
+import { aboutStructuredData } from "@/lib/structured-data";
 import type { Verdict } from "@/lib/types";
 import {
   EARLY_WINDOW_DAYS,
@@ -13,6 +16,12 @@ import {
 } from "@/lib/verdict";
 import { LABEL_COVERAGE_START, MAX_HOLD_DAYS } from "@/lib/window";
 
+export const metadata: Metadata = {
+  title: ABOUT_TITLE,
+  description: ABOUT_DESCRIPTION,
+  alternates: { canonical: "/about" },
+};
+
 const STATES: Verdict[] = ["still-bid", "distribution", "retail-pump", "split", "quiet", "too-thin"];
 
 const pct = (value: number) => `${Math.round(value * 100)}%`;
@@ -21,6 +30,7 @@ const usd = (value: number) => `$${value.toLocaleString("en-US")}`;
 export default function AboutPage() {
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 pt-10 pb-6">
+      <JsonLd data={aboutStructuredData()} />
       <p className="col">About</p>
       <h1 className="display mt-4 max-w-[18ch]">
         Is anyone still buying, or are you the exit?

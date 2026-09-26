@@ -4,7 +4,7 @@
 
 It answers one question: is anyone still buying, or are you the exit? It pulls smart traders, whales, new wallets, public figures, and exchanges from the Nansen API, sizes each against the token's own daily volume, and names what's happening: Still buying, Cashing out, Retail rush, Mixed, or Quiet. Tell it the day you bought and the same data answers for someone who already holds.
 
-Powered by [Nansen API](https://nansen.ai). Descriptive onchain data, not financial advice.
+Live at [getbagcheck.vercel.app](https://getbagcheck.vercel.app). Powered by [Nansen API](https://nsn.ai/naved) (referral link). Descriptive onchain data, not financial advice. An independent project built for a Nansen buildathon, not an official Nansen product.
 
 ## Run it in under 5 minutes (no key)
 
@@ -71,6 +71,8 @@ Tune with `CACHE_TTL_SECONDS`, `DAILY_CALL_CAP`, `COLD_CHECKS_PER_CLIENT_HOUR`, 
 ## Deploy (Vercel)
 
 Set `DATA_MODE=snapshot` for a zero-cost public demo. For a public live deploy, set `DATA_MODE=live`, `NANSEN_API_KEY`, `ALLOWED_ORIGINS=https://your-app.vercel.app`, and keep `DAILY_CALL_CAP` at a number of credits you can afford to lose in a day. Never create a `NEXT_PUBLIC_NANSEN_*` variable.
+
+Search: `src/lib/site.ts` holds the public URL that canonical links, the sitemap, `robots.txt`, and share cards use, so change `SITE_URL` there when you deploy somewhere else. `robots.txt` keeps crawlers off `/api/`, `/t/`, and `/w/`, since each check or wallet page can spend live credits; link previews (X, Slack, Discord) may still fetch a shared check. `public/llms.txt` describes the app for AI assistants, and a test keeps its numbers in step with `verdict.ts`.
 
 ## Scripts
 
