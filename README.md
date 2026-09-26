@@ -1,10 +1,50 @@
 # Bagcheck
 
-**Who's buying your bag?** Paste a token and Bagcheck tells you, in a couple of words, what the wallets that matter did with it in the last 24 hours: **Looks good**, **Stay away**, **Wait**, **Hold**, or **Time to go**.
+**Who's buying your bag?** Paste a token or a wallet and Bagcheck tells you, in a couple of words, what the wallets that matter did with it in the last 24 hours. It answers one question: is anyone still buying, or are you the exit?
 
-It answers one question: is anyone still buying, or are you the exit? It pulls smart traders, whales, new wallets, public figures, and exchanges from the Nansen API, sizes each against the token's own daily volume, and names what's happening: Still buying, Cashing out, Retail rush, Mixed, or Quiet. Tell it the day you bought and the same data answers for someone who already holds.
+**[Try it live at getbagcheck.vercel.app](https://getbagcheck.vercel.app)**. No sign-up, no wallet connect.
 
-Live at [getbagcheck.vercel.app](https://getbagcheck.vercel.app). Powered by [Nansen API](https://nsn.ai/naved) (referral link). Descriptive onchain data, not financial advice. An independent project built for a Nansen buildathon, not an official Nansen product.
+| Demo (0:43) | Walkthrough with voice (1:42) |
+| --- | --- |
+| [![Bagcheck demo film](media/bagcheck-demo.jpg)](media/bagcheck-demo.mp4) | [![Bagcheck walkthrough](media/bagcheck-walkthrough.jpg)](media/bagcheck-walkthrough.mp4) |
+| The product in 43 seconds. | Every step, on saved demo data. |
+
+Powered by [Nansen API](https://nsn.ai/naved) (referral link). Descriptive onchain data, not financial advice. An independent project built for a Nansen buildathon, not an official Nansen product.
+
+## Features
+
+- **One straight answer for any token.** Paste a token address from Solana, Ethereum, or Base (the chain is found for you) and get **Looks good**, **Stay away**, **Wait**, or **Can't tell**.
+- **The why, in plain words.** A tag names what's happening, and meters show net buying by big buyers, new wallets, and exchanges, each sized against the token's own daily volume.
+- **The biggest buyers and sellers today**, by DEX volume, and **where the money went**.
+- **Early exit.** How many of this week's biggest sellers got in during the token's first 10 days.
+- **Already holding?** Add the day you bought and the same data answers for a holder (**Hold** or **Time to go**), with what changed since that day, up to 90 days back.
+- **Your bags.** Add tokens to your list and home shows today's answer for each. Kept in your browser, no account.
+- **A whole wallet at once.** Paste a wallet (Ethereum and Base together, or Solana) and it reads the 5 biggest holdings, each with its own answer. Add them all to your bags in one click.
+- **Share a check.** Copy link keeps the token, and your buy date if you set one.
+- **Never a dead end.** When the day's live checks are used up, it says so and offers saved reads that cost nothing.
+
+### What the answers mean
+
+| What's happening | Thinking of buying | Already holding |
+| --- | --- | --- |
+| Still buying: smart traders and whales are still buying | Looks good | Hold |
+| Retail rush: new wallets are doing all the buying | Wait | Hold |
+| Cashing out: tokens are heading to exchanges | Stay away | Time to go |
+| Mixed: smart traders and whales pull opposite ways | Wait | Wait |
+| Quiet: nobody's moving much | Wait | Hold |
+| Too small: too little trading to tell | Can't tell | Can't tell |
+
+## How to use
+
+1. Open [getbagcheck.vercel.app](https://getbagcheck.vercel.app).
+2. Paste a token address and hit **Check**, or tap **WSOL**, **PEPE**, or **BONK** to try one.
+3. Read the big answer. The tag and meters beside it say why. Scroll for the biggest buyers and sellers and where the money went.
+4. Already holding it? Pick the day you bought under **Already holding? Add the day you bought.** The answer now speaks to a holder.
+5. Tap **Add to bags**. Back on home, **Your bags** shows today's answer for each one. **Add tokens** searches for more.
+6. To check everything you hold, switch the paste field to **Wallet**, paste an address, and hit **Check bags**, or tap **Try a sample wallet**. **Add all to bags** adds them as held.
+7. **Copy link** shares a check with someone else.
+
+The method, the thresholds, and the limits are on the [about page](https://getbagcheck.vercel.app/about).
 
 ## Run it in under 5 minutes (no key)
 
@@ -92,4 +132,4 @@ pnpm demo-check             # live answers for the featured tokens and sample wa
 
 ## Layout
 
-One Next.js 16 app. Server-only Nansen client in `src/lib/nansen.ts` with an allowlist of paths. Resolver, cache, and credit guard in `src/lib/resolve-check.ts` and `src/lib/cold-gate.ts`. No wallet connect, no generic proxy.
+One Next.js 16 app. The demo and walkthrough videos and their posters are in `media/`. Server-only Nansen client in `src/lib/nansen.ts` with an allowlist of paths. Resolver, cache, and credit guard in `src/lib/resolve-check.ts` and `src/lib/cold-gate.ts`. No wallet connect, no generic proxy.
