@@ -6,8 +6,10 @@
 
 | Demo (0:43) | Walkthrough with voice (1:42) |
 | --- | --- |
-| [![Bagcheck demo film](media/bagcheck-demo.jpg)](media/bagcheck-demo.mp4) | [![Bagcheck walkthrough](media/bagcheck-walkthrough.jpg)](media/bagcheck-walkthrough.mp4) |
+| [![Bagcheck demo film](public/media/bagcheck-demo.jpg)](https://getbagcheck.vercel.app/media/bagcheck-demo.mp4) | [![Bagcheck walkthrough](public/media/bagcheck-walkthrough.jpg)](https://getbagcheck.vercel.app/media/bagcheck-walkthrough.mp4) |
 | The product in 43 seconds. | Every step, on saved demo data. |
+
+Click a poster to play it in your browser. The files are in [`public/media/`](public/media).
 
 Powered by [Nansen API](https://nsn.ai/naved) (referral link). Descriptive onchain data, not financial advice. An independent project built for a Nansen buildathon, not an official Nansen product.
 
@@ -132,4 +134,4 @@ pnpm demo-check             # live answers for the featured tokens and sample wa
 
 ## Layout
 
-One Next.js 16 app. The demo and walkthrough videos and their posters are in `media/`. Server-only Nansen client in `src/lib/nansen.ts` with an allowlist of paths. Resolver, cache, and credit guard in `src/lib/resolve-check.ts` and `src/lib/cold-gate.ts`. No wallet connect, no generic proxy.
+One Next.js 16 app. The demo and walkthrough videos and their posters are in `public/media/`, so the site serves them. Server-only Nansen client in `src/lib/nansen.ts` with an allowlist of paths. Resolver, cache, and credit guard in `src/lib/resolve-check.ts` and `src/lib/cold-gate.ts`. No wallet connect, no generic proxy.
